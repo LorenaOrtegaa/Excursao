@@ -87,7 +87,7 @@
           <i class="fa-solid fa-van-shuttle"></i>
         </div>
         <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Reserva de Excursão</h2>
-        <p class="text-xs text-slate-500 mt-1">Garanta sua vaga na van e adicione acompanhantes.</p>
+        <p class="text-xs text-slate-500 mt-1">Preencha seus dados para garantir sua vaga e de acompanhantes.</p>
       </div>
 
       <!-- SUCESSO -->
@@ -114,7 +114,7 @@
         <button onclick="resetClientForm()" class="text-xs font-medium text-slate-400 hover:text-slate-600 transition underline mt-2 block mx-auto">Fazer outra reserva</button>
       </div>
 
-      <!-- FORMULÁRIO -->
+      <!-- FORMULÁRIO CLIENTE -->
       <form id="clientBookingForm" onsubmit="handleClientSubmitBooking(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Seu Nome Completo</label>
@@ -123,27 +123,21 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade</label>
-            <select id="clientCitySelect" onchange="updateClientVanOptions()" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade de Embarque</label>
+            <select id="clientCitySelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp (Obrigatório)</label>
-            <input type="tel" id="clientPhoneInput" placeholder="(19) 99999-9999" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp (Somente Números)</label>
+            <input type="tel" id="clientPhoneInput" placeholder="19999999999" oninput="maskDigitsOnly(this)" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sua Van</label>
-            <select id="clientVanSelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Pagamento</label>
-            <select id="clientPaymentOption" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-              <option value="PARCIAL">Reserva de Vaga (Sinal)</option>
-              <option value="PAGO">Pagamento Completo</option>
-            </select>
-          </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Pagamento</label>
+          <select id="clientPaymentOption" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <option value="PARCIAL">Reserva de Vaga (Sinal)</option>
+            <option value="PAGO">Pagamento Completo</option>
+          </select>
         </div>
 
         <!-- ACOMPANHANTES -->
@@ -152,7 +146,7 @@
             <span class="text-xs font-bold text-slate-700 uppercase">Acompanhantes</span>
             <button type="button" onclick="addCompanionField()" class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl hover:bg-emerald-100 transition flex items-center space-x-1">
               <i class="fa-solid fa-user-plus text-[10px]"></i>
-              <span>+ Amigo</span>
+              <span>+ Acompanhante</span>
             </button>
           </div>
           <div id="companionsContainer" class="space-y-3"></div>
@@ -298,21 +292,55 @@
     </div>
   </div>
 
-  <!-- MODAL PASSAGEIRO -->
+  <!-- MODAL PASSAGEIRO (ADMIN) -->
   <div id="addPassengerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
     <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
       <button onclick="closeModal('addPassengerModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-extrabold text-slate-900 mb-4" id="passengerModalTitle">Adicionar Passageiro</h3>
       <form onsubmit="handleSavePassenger(event)" class="space-y-3">
         <input type="hidden" id="editPassengerId">
-        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Completo</label><input type="text" id="passNameInput" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
-        <div class="grid grid-cols-2 gap-2">
-          <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade</label><select id="passCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select></div>
-          <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Pagamento</label><select id="passPaymentSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="PAGO">Pago Completo</option><option value="PARCIAL">Reserva de Vaga (Sinal)</option><option value="PENDENTE" selected>Pendente</option></select></div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Completo</label>
+          <input type="text" id="passNameInput" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
         </div>
-        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Van Atribuída</label><select id="passVanSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="">Sem Van (Lista de Espera)</option></select></div>
-        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp / Observações</label><input type="text" id="passNotesInput" placeholder="Ex: (19) 99999-9999" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
-        <div class="flex justify-end space-x-2 pt-3"><button type="button" onclick="closeModal('addPassengerModal')" class="px-4 py-2 text-slate-600 text-xs font-bold">Cancelar</button><button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Salvar Passageiro</button></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade</label>
+            <select id="passCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp (Números)</label>
+            <input type="tel" id="passPhoneInput" placeholder="19999999999" oninput="maskDigitsOnly(this)" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Pagamento</label>
+            <select id="passPaymentSelect" onchange="togglePromisedDateField()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+              <option value="PAGO">Pago Completo</option>
+              <option value="PARCIAL">Reserva de Vaga (Sinal)</option>
+              <option value="PENDENTE" selected>Pendente</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Van Atribuída</label>
+            <select id="passVanSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+              <option value="">Sem Van (Lista de Espera)</option>
+            </select>
+          </div>
+        </div>
+        <div id="promisedDateContainer" class="hidden">
+          <label class="block text-xs font-bold text-amber-700 uppercase mb-1">Data Prometida para Quitar Restante</label>
+          <input type="date" id="passPromisedDateInput" class="w-full px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-bold text-slate-800">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações / Quem Pagou</label>
+          <input type="text" id="passNotesInput" placeholder="Ex: Pago por João" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div class="flex justify-end space-x-2 pt-3">
+          <button type="button" onclick="closeModal('addPassengerModal')" class="px-4 py-2 text-slate-600 text-xs font-bold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Salvar Passageiro</button>
+        </div>
       </form>
     </div>
   </div>
@@ -338,13 +366,10 @@
       const isRecognizedAdmin = localStorage.getItem('vg_admin_authenticated') === 'true';
       
       if (isClientMode) {
-        // CLIENTE: abre direto o formulário de reserva
         activateClientMode();
       } else if (isRecognizedAdmin) {
-        // ADMIN AUTENTICADO: abre o Painel do Organizador direto
         activateAdminMode();
       } else {
-        // DISPOSITIVO NOVO: Pede login e senha do Admin
         showAdminLogin();
       }
     });
@@ -354,6 +379,22 @@
         try {
           supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
         } catch (e) { console.error("Erro ao iniciar Supabase:", e); }
+      }
+    }
+
+    // UTILITÁRIO PARA ACEITAR SOMENTE NÚMEROS NO WHATSAPP
+    function maskDigitsOnly(input) {
+      input.value = input.value.replace(/\D/g, '');
+    }
+
+    function togglePromisedDateField() {
+      const paymentStatus = document.getElementById('passPaymentSelect').value;
+      const container = document.getElementById('promisedDateContainer');
+      if (paymentStatus === 'PARCIAL') {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+        document.getElementById('passPromisedDateInput').value = '';
       }
     }
 
@@ -375,7 +416,16 @@
 
           const { data: pData } = await supabaseClient.from('passengers').select('*');
           if (pData) {
-            state.passengers = pData.map(p => ({ id: p.id, name: p.name, city: p.city, payment: p.payment, vanId: p.van_id, notes: p.notes }));
+            state.passengers = pData.map(p => ({
+              id: p.id,
+              name: p.name,
+              city: p.city,
+              payment: p.payment,
+              vanId: p.van_id,
+              notes: p.notes,
+              phone: p.phone || '',
+              promisedDate: p.promised_date || ''
+            }));
           }
           saveLocal();
           return;
@@ -456,23 +506,6 @@
       const citySelect = document.getElementById('clientCitySelect');
       citySelect.innerHTML = '';
       state.cities.forEach(c => citySelect.innerHTML += `<option value="${c}">${c}</option>`);
-      updateClientVanOptions();
-    }
-
-    function updateClientVanOptions() {
-      const selectedCity = document.getElementById('clientCitySelect').value;
-      const vanSelect = document.getElementById('clientVanSelect');
-      vanSelect.innerHTML = '';
-      const availableVans = state.vans.filter(v => v.baseCity === selectedCity || v.allowCrossCity);
-      if (availableVans.length === 0) {
-        vanSelect.innerHTML = '<option value="">Nenhuma van disponível</option>';
-        return;
-      }
-      availableVans.forEach(v => {
-        const totalInVan = state.passengers.filter(p => p.vanId === v.id).length;
-        const isFull = totalInVan >= v.capacity;
-        vanSelect.innerHTML += `<option value="${v.id}" ${isFull ? 'disabled' : ''}>${v.name} (Base: ${v.baseCity}) - ${totalInVan}/${v.capacity} vagas ${isFull ? '[LOTADA]' : ''}</option>`;
-      });
     }
 
     let companionCount = 0;
@@ -482,40 +515,25 @@
       const div = document.createElement('div');
       div.className = "p-3 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2 relative";
       div.id = `companionRow_${companionCount}`;
-      
-      let vanOptionsHtml = '';
-      state.vans.forEach(v => {
-        const totalInVan = state.passengers.filter(p => p.vanId === v.id).length;
-        const isFull = totalInVan >= v.capacity;
-        vanOptionsHtml += `<option value="${v.id}" ${isFull ? 'disabled' : ''}>${v.name} (${v.baseCity}) - ${totalInVan}/${v.capacity}${isFull ? ' [LOTADA]' : ''}</option>`;
-      });
 
       div.innerHTML = `
         <div class="flex items-center justify-between">
           <span class="text-[10px] font-bold text-emerald-700 uppercase">Acompanhante #${companionCount}</span>
           <button type="button" onclick="document.getElementById('companionRow_${companionCount}').remove()" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button>
         </div>
-        <input type="text" placeholder="Nome Completo do Amigo" class="companion-name w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+        <input type="text" placeholder="Nome Completo do Acompanhante" class="companion-name w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
         <div class="grid grid-cols-2 gap-2">
           <select class="companion-city w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
             ${state.cities.map(c => `<option value="${c}">${c}</option>`).join('')}
           </select>
-          <input type="tel" placeholder="WhatsApp (Obrigatório)" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+          <input type="tel" placeholder="WhatsApp (Números)" oninput="maskDigitsOnly(this)" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Van do Acompanhante</label>
-            <select class="companion-van w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
-              ${vanOptionsHtml}
-            </select>
-          </div>
-          <div>
-            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Pagamento</label>
-            <select class="companion-payment w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
-              <option value="PARCIAL">Reserva (Sinal)</option>
-              <option value="PAGO">Pago Completo</option>
-            </select>
-          </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Pagamento Acompanhante</label>
+          <select class="companion-payment w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+            <option value="PARCIAL">Reserva (Sinal)</option>
+            <option value="PAGO">Pago Completo</option>
+          </select>
         </div>
       `;
       container.appendChild(div);
@@ -525,34 +543,32 @@
       e.preventDefault();
       const mainName = document.getElementById('clientNameInput').value.trim();
       const mainCity = document.getElementById('clientCitySelect').value;
-      const vanId = document.getElementById('clientVanSelect').value;
-      const mainPhone = document.getElementById('clientPhoneInput').value.trim();
+      const mainPhone = document.getElementById('clientPhoneInput').value.trim().replace(/\D/g, '');
       const mainPayment = document.getElementById('clientPaymentOption').value;
 
-      const mainPass = { id: 'p_' + Date.now(), name: mainName, city: mainCity, payment: mainPayment, vanId, notes: `Wpp: ${mainPhone} (Comprador)` };
+      const mainPass = { id: 'p_' + Date.now(), name: mainName, city: mainCity, payment: mainPayment, vanId: null, phone: mainPhone, notes: 'Comprador Principal', promisedDate: '' };
       state.passengers.push(mainPass);
-      await syncToSupabase('passengers', { id: mainPass.id, name: mainName, city: mainCity, payment: mainPayment, van_id: vanId, notes: mainPass.notes });
+      await syncToSupabase('passengers', { id: mainPass.id, name: mainName, city: mainCity, payment: mainPayment, van_id: null, phone: mainPhone, notes: mainPass.notes, promised_date: '' });
 
       const rows = document.querySelectorAll('#companionsContainer > div');
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const compName = row.querySelector('.companion-name').value.trim();
         const compCity = row.querySelector('.companion-city').value;
-        const compPhone = row.querySelector('.companion-phone').value.trim();
-        const compVanId = row.querySelector('.companion-van').value;
+        const compPhone = row.querySelector('.companion-phone').value.trim().replace(/\D/g, '');
         const compPayment = row.querySelector('.companion-payment').value;
 
         if (compName) {
           const compId = `p_${Date.now()}_${i}`;
-          const compPass = { id: compId, name: compName, city: compCity, payment: compPayment, vanId: compVanId, notes: `Wpp: ${compPhone} (Pago por ${mainName})` };
+          const compPass = { id: compId, name: compName, city: compCity, payment: compPayment, vanId: null, phone: compPhone, notes: `Acompanhante de ${mainName}`, promisedDate: '' };
           state.passengers.push(compPass);
-          await syncToSupabase('passengers', { id: compId, name: compName, city: compCity, payment: compPayment, van_id: compVanId, notes: compPass.notes });
+          await syncToSupabase('passengers', { id: compId, name: compName, city: compCity, payment: compPayment, van_id: null, phone: compPhone, notes: compPass.notes, promised_date: '' });
         }
       }
 
       const totalVegas = 1 + rows.length;
       const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
-      const msg = encodeURIComponent(`Olá! Sou o(a) ${mainName} e fiz a reserva de ${totalVegas} vaga(s) com a opção de [${tipoPagamentoTexto}]. Segue o comprovante em anexo!`);
+      const msg = encodeURIComponent(`Olá! Sou o(a) ${mainName} e fiz a reserva de ${totalVegas} vaga(s) no formato [${tipoPagamentoTexto}]. Segue o comprovante por aqui!`);
       
       document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/5519999999999?text=${msg}`;
 
@@ -565,7 +581,6 @@
       document.getElementById('companionsContainer').innerHTML = '';
       document.getElementById('clientBookingForm').classList.remove('hidden');
       document.getElementById('clientBookingSuccess').classList.add('hidden');
-      updateClientVanOptions();
     }
 
     function copyClientLink() {
@@ -598,7 +613,7 @@
 
     function getFilteredPassengers() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      return state.passengers.filter(p => p.name.toLowerCase().includes(query) || p.city.toLowerCase().includes(query) || (p.notes && p.notes.toLowerCase().includes(query)));
+      return state.passengers.filter(p => p.name.toLowerCase().includes(query) || p.city.toLowerCase().includes(query) || (p.notes && p.notes.toLowerCase().includes(query)) || (p.phone && p.phone.includes(query)));
     }
 
     function updateMetrics() {
@@ -606,6 +621,31 @@
       document.getElementById('statTotalVans').innerText = state.vans.length;
       document.getElementById('statPixPago').innerText = state.passengers.filter(p => p.payment === 'PAGO').length;
       document.getElementById('statPixPendente').innerText = state.passengers.filter(p => p.payment === 'PARCIAL' || p.payment === 'PENDENTE').length;
+    }
+
+    // VERIFICA SE A DATA PROMETIDA JÁ PASSOU OU É HOJE (ALERTA EM VERMELHO)
+    function isPaymentOverdue(p) {
+      if (p.payment !== 'PARCIAL' || !p.promisedDate) return false;
+      const today = new Date().toISOString().split('T')[0];
+      return p.promisedDate <= today;
+    }
+
+    // MONTA O LINK DO WHATSAPP COM MENSAGEM INTELIGENTE
+    function generateWhatsappLink(p) {
+      if (!p.phone) return '#';
+      const cleanPhone = p.phone.replace(/\D/g, '');
+      if (!cleanPhone) return '#';
+
+      let msg = "";
+      if (p.payment === 'PARCIAL') {
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você registrou o pagamento do SINAL. Pode me enviar o comprovante por aqui para confirmação?\n\nCaso já tenha enviado o comprovante, por favor informe a data limite para pagamento do valor restante.`;
+      } else if (p.payment === 'PAGO') {
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Por favor, envie o comprovante por aqui para confirmar sua vaga!`;
+      } else {
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga. Segue em aberto para envio do comprovante.`;
+      }
+
+      return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
     }
 
     function renderVans() {
@@ -645,28 +685,25 @@
 
           <div class="p-3 divide-y divide-slate-100 max-h-72 overflow-y-auto custom-scrollbar">
             ${passengersInVan.length === 0 ? `<p class="text-xs text-slate-400 italic text-center py-4">Nenhum passageiro nesta van.</p>` : passengersInVan.map(p => {
-              const cleanPhone = p.notes ? p.notes.replace(/\D/g, '') : '';
-              const paymentLabel = p.payment === 'PAGO' ? 'Pagamento Completo' : 'Reserva/Sinal';
-              const waMessage = encodeURIComponent(`Olá ${p.name}, aqui é da organização da Excursão! Vi que você fez a reserva de vaga no formato (${paymentLabel}). Pode me enviar o comprovante por aqui para confirmação?`);
-              const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=${waMessage}` : '#';
-              const isGroup = p.notes && p.notes.includes('Pago por');
+              const overdue = isPaymentOverdue(p);
+              const waLink = generateWhatsappLink(p);
               return `
               <div class="py-2 flex items-center justify-between">
                 <div>
                   <div class="flex items-center space-x-1.5">
-                    <span class="font-bold text-slate-800 text-xs">${p.name}</span>
+                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-800'}">${p.name}</span>
                     ${getPaymentBadge(p.payment)}
-                    ${cleanPhone ? `<a href="${waLink}" target="_blank" title="Confirmar pagamento no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                    ${p.phone ? `<a href="${waLink}" target="_blank" title="Mandar Mensagem no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
                   </div>
                   <div class="flex items-center space-x-1 mt-0.5">
                     <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded-md">${p.city}</span>
-                    ${isGroup ? `<span class="text-[9px] bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.5 rounded-md">Grupo</span>` : ''}
+                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-amber-50 text-amber-800 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <button onclick="openMovePassengerModal('${p.id}')" class="p-1 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
-                  <button onclick="openEditPassengerModal('${p.id}')" class="p-1 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
-                  <button onclick="handleUnassignVan('${p.id}')" class="p-1 text-slate-400 hover:text-amber-600 text-xs"><i class="fa-solid fa-user-minus"></i></button>
+                  <button onclick="openMovePassengerModal('${p.id}')" title="Mover de Van" class="p-1 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+                  <button onclick="openEditPassengerModal('${p.id}')" title="Editar Passageiro" class="p-1 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
+                  <button onclick="handleUnassignVan('${p.id}')" title="Retirar da Van" class="p-1 text-slate-400 hover:text-amber-600 text-xs"><i class="fa-solid fa-user-minus"></i></button>
                 </div>
               </div>
             `;}).join('')}
@@ -685,15 +722,28 @@
             <span class="bg-amber-800 text-amber-100 text-xs font-bold px-2 py-0.5 rounded-full">${unassigned.length}</span>
           </div>
           <div class="p-3 divide-y divide-amber-100 max-h-60 overflow-y-auto custom-scrollbar">
-            ${unassigned.map(p => `
+            ${unassigned.map(p => {
+              const overdue = isPaymentOverdue(p);
+              const waLink = generateWhatsappLink(p);
+              return `
               <div class="py-2 flex items-center justify-between">
                 <div>
-                  <span class="font-bold text-slate-800 text-xs block">${p.name}</span>
-                  <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md inline-block mt-0.5">${p.city}</span>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-800'}">${p.name}</span>
+                    ${getPaymentBadge(p.payment)}
+                    ${p.phone ? `<a href="${waLink}" target="_blank" title="Mandar Mensagem no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                  </div>
+                  <div class="flex items-center space-x-1 mt-0.5">
+                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">${p.city}</span>
+                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-amber-200 text-amber-900 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                  </div>
                 </div>
-                <button onclick="openMovePassengerModal('${p.id}')" class="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-xs font-bold">Alocar</button>
+                <div class="flex items-center space-x-1">
+                  <button onclick="openMovePassengerModal('${p.id}')" class="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-amber-700">Alocar</button>
+                  <button onclick="handleDeletePassenger('${p.id}')" title="Excluir Passageiro" class="p-1.5 text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                </div>
               </div>
-            `).join('')}
+            `;}).join('')}
           </div>
         `;
         container.appendChild(waitlistCard);
@@ -712,29 +762,28 @@
 
       filtered.forEach(p => {
         const van = state.vans.find(v => v.id === p.vanId);
-        const cleanPhone = p.notes ? p.notes.replace(/\D/g, '') : '';
-        const paymentLabel = p.payment === 'PAGO' ? 'Pagamento Completo' : 'Reserva de Vaga (Sinal)';
-        const waMessage = encodeURIComponent(`Olá ${p.name}, aqui é da organização da Excursão! Vi que você registrou o pagamento como (${paymentLabel}). Pode me enviar o comprovante por aqui para eu confirmar a vaga?`);
-        const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=${waMessage}` : '#';
+        const overdue = isPaymentOverdue(p);
+        const waLink = generateWhatsappLink(p);
 
         const div = document.createElement('div');
         div.className = "p-3.5 flex items-center justify-between hover:bg-slate-50 transition";
         div.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center space-x-2">
-              <span class="font-bold text-slate-900 text-xs">${p.name}</span>
+              <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-900'}">${p.name}</span>
               ${getPaymentBadge(p.payment)}
-              ${cleanPhone ? `<a href="${waLink}" target="_blank" title="Abrir conversa para confirmar comprovante" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+              ${p.phone ? `<a href="${waLink}" target="_blank" title="Abrir WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
             </div>
             <div class="flex items-center space-x-1.5 text-[10px]">
               <span class="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${p.city}</span>
               <span class="${van ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'} font-semibold px-2 py-0.5 rounded-md border">${van ? van.name : 'Sem Van'}</span>
+              ${p.promisedDate ? `<span class="${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-slate-100 text-slate-600'} font-bold px-1.5 py-0.5 rounded-md">Restante: ${formatDateBR(p.promisedDate)}</span>` : ''}
             </div>
           </div>
           <div class="flex items-center space-x-1">
-            <button onclick="openMovePassengerModal('${p.id}')" class="p-1.5 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
-            <button onclick="openEditPassengerModal('${p.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
-            <button onclick="handleDeletePassenger('${p.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="openMovePassengerModal('${p.id}')" title="Mover Van" class="p-1.5 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+            <button onclick="openEditPassengerModal('${p.id}')" title="Editar" class="p-1.5 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="handleDeletePassenger('${p.id}')" title="Excluir" class="p-1.5 text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
           </div>
         `;
         container.appendChild(div);
@@ -763,7 +812,7 @@
       const p = state.passengers.find(x => x.id === passengerId);
       if (p) {
         p.vanId = targetVanId;
-        await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: targetVanId, notes: p.notes });
+        await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: targetVanId, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
         closeModal('movePassengerModal');
         renderApp();
       }
@@ -791,6 +840,13 @@
       if (status === 'PAGO') return `<span class="bg-emerald-100 text-emerald-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pago Total</span>`;
       if (status === 'PARCIAL') return `<span class="bg-blue-100 text-blue-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Sinal</span>`;
       return `<span class="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pendente</span>`;
+    }
+
+    function formatDateBR(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
+      return dateStr;
     }
 
     function populateModalSelects() {
@@ -826,11 +882,11 @@
     }
 
     async function handleDeleteVan(vanId) {
-      if (!confirm('Remover esta van?')) return;
+      if (!confirm('Remover esta van? Os passageiros nela irão para a Lista de Espera.')) return;
       for (let p of state.passengers) {
         if (p.vanId === vanId) {
           p.vanId = null;
-          await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes });
+          await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
         }
       }
       state.vans = state.vans.filter(v => v.id !== vanId);
@@ -843,18 +899,28 @@
       const id = document.getElementById('editPassengerId').value;
       const name = document.getElementById('passNameInput').value;
       const city = document.getElementById('passCitySelect').value;
+      const phone = document.getElementById('passPhoneInput').value.trim().replace(/\D/g, '');
       const payment = document.getElementById('passPaymentSelect').value;
       const vanId = document.getElementById('passVanSelect').value || null;
+      const promisedDate = document.getElementById('passPromisedDateInput').value;
       const notes = document.getElementById('passNotesInput').value;
 
       const passengerId = id || 'p_' + Date.now();
       if (id) {
         const p = state.passengers.find(x => x.id === id);
-        if (p) { p.name = name; p.city = city; p.payment = payment; p.vanId = vanId; p.notes = notes; }
+        if (p) {
+          p.name = name;
+          p.city = city;
+          p.phone = phone;
+          p.payment = payment;
+          p.vanId = vanId;
+          p.promisedDate = promisedDate;
+          p.notes = notes;
+        }
       } else {
-        state.passengers.push({ id: passengerId, name, city, payment, vanId, notes });
+        state.passengers.push({ id: passengerId, name, city, phone, payment, vanId, promisedDate, notes });
       }
-      await syncToSupabase('passengers', { id: passengerId, name, city, payment, van_id: vanId, notes });
+      await syncToSupabase('passengers', { id: passengerId, name, city, phone, payment, van_id: vanId, notes, promised_date: promisedDate });
       closeModal('addPassengerModal');
       resetPassengerForm();
       renderApp();
@@ -866,31 +932,41 @@
       document.getElementById('editPassengerId').value = p.id;
       document.getElementById('passNameInput').value = p.name;
       document.getElementById('passCitySelect').value = p.city;
+      document.getElementById('passPhoneInput').value = p.phone || '';
       document.getElementById('passPaymentSelect').value = p.payment;
       document.getElementById('passVanSelect').value = p.vanId || '';
+      document.getElementById('passPromisedDateInput').value = p.promisedDate || '';
       document.getElementById('passNotesInput').value = p.notes || '';
       document.getElementById('passengerModalTitle').innerText = 'Editar Passageiro';
+      togglePromisedDateField();
       openModal('addPassengerModal');
     }
 
     function resetPassengerForm() {
       document.getElementById('editPassengerId').value = '';
       document.getElementById('passNameInput').value = '';
+      document.getElementById('passPhoneInput').value = '';
+      document.getElementById('passPromisedDateInput').value = '';
       document.getElementById('passNotesInput').value = '';
       document.getElementById('passengerModalTitle').innerText = 'Adicionar Passageiro';
+      togglePromisedDateField();
     }
 
+    // REMOVE PASSAGEIRO DA VAN COM CONFIRMAÇÃO
     async function handleUnassignVan(passengerId) {
       const p = state.passengers.find(x => x.id === passengerId);
       if (p) {
+        if (!confirm(`Deseja mesmo retirar ${p.name} desta van?`)) return;
         p.vanId = null;
-        await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes });
+        await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
         renderApp();
       }
     }
 
     async function handleDeletePassenger(id) {
-      if (!confirm('Excluir este passageiro?')) return;
+      const p = state.passengers.find(x => x.id === id);
+      const passName = p ? p.name : 'este passageiro';
+      if (!confirm(`Excluir permanentemente ${passName}?`)) return;
       state.passengers = state.passengers.filter(p => p.id !== id);
       await deleteFromSupabase('passengers', id);
       renderApp();
