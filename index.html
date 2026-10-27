@@ -96,7 +96,7 @@
           <i class="fa-solid fa-check"></i>
         </div>
         <h3 class="text-lg font-bold text-slate-900">Pré-Reserva Garantida!</h3>
-        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix correspondente e envie o comprovante no WhatsApp do organizador para confirmar.</p>
+        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix correspondente e envie o comprovante no WhatsApp da organizadora para confirmar.</p>
         
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left mb-5">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Chave PIX para pagamento:</p>
@@ -127,8 +127,8 @@
             <select id="clientCitySelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp (Somente Números)</label>
-            <input type="tel" id="clientPhoneInput" placeholder="19999999999" oninput="maskDigitsOnly(this)" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp</label>
+            <input type="tel" id="clientPhoneInput" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
           </div>
         </div>
 
@@ -309,8 +309,8 @@
             <select id="passCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp (Números)</label>
-            <input type="tel" id="passPhoneInput" placeholder="19999999999" oninput="maskDigitsOnly(this)" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp</label>
+            <input type="tel" id="passPhoneInput" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
@@ -346,6 +346,9 @@
   </div>
 
   <script>
+    // NÚMERO DE WHATSAPP DA LORENA (Insira o número com DDD e 55 na frente)
+    const LORENA_WHATSAPP = "+5519971493039"; 
+
     // CREDENCIAIS DO SUPABASE
     const SB_URL = 'https://xudhsnaqifdswiuogjdh.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1ZGhzbmFxaWZkc3dpdW9namRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTQ4NDMsImV4cCI6MjEwODY5MDg0M30.4GKnAtKG9A2VyTFHGPl1Dc7APEb6LXmtmPhHaj6eiFs';
@@ -382,9 +385,20 @@
       }
     }
 
-    // UTILITÁRIO PARA ACEITAR SOMENTE NÚMEROS NO WHATSAPP
-    function maskDigitsOnly(input) {
-      input.value = input.value.replace(/\D/g, '');
+    // MÁSCARA INTELIGENTE PARA FORMATAR APENAS (DDD) 99999-9999
+    function applyPhoneMask(input) {
+      let value = input.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+
+      if (value.length > 6) {
+        input.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+      } else if (value.length > 2) {
+        input.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+      } else if (value.length > 0) {
+        input.value = `(${value}`;
+      } else {
+        input.value = '';
+      }
     }
 
     function togglePromisedDateField() {
@@ -526,7 +540,7 @@
           <select class="companion-city w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
             ${state.cities.map(c => `<option value="${c}">${c}</option>`).join('')}
           </select>
-          <input type="tel" placeholder="WhatsApp (Números)" oninput="maskDigitsOnly(this)" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+          <input type="tel" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
         </div>
         <div>
           <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Pagamento Acompanhante</label>
@@ -568,9 +582,10 @@
 
       const totalVegas = 1 + rows.length;
       const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
-      const msg = encodeURIComponent(`Olá! Sou o(a) ${mainName} e fiz a reserva de ${totalVegas} vaga(s) no formato [${tipoPagamentoTexto}]. Segue o comprovante por aqui!`);
+      const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} e fiz a reserva de ${totalVegas} vaga(s) no formato [${tipoPagamentoTexto}]. Segue o meu comprovante por aqui!`);
       
-      document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/5519999999999?text=${msg}`;
+      // DIRECIONA DIRETO PARA O NÚMERO DA LORENA
+      document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/${LORENA_WHATSAPP}?text=${msg}`;
 
       document.getElementById('clientBookingForm').classList.add('hidden');
       document.getElementById('clientBookingSuccess').classList.remove('hidden');
@@ -623,14 +638,13 @@
       document.getElementById('statPixPendente').innerText = state.passengers.filter(p => p.payment === 'PARCIAL' || p.payment === 'PENDENTE').length;
     }
 
-    // VERIFICA SE A DATA PROMETIDA JÁ PASSOU OU É HOJE (ALERTA EM VERMELHO)
     function isPaymentOverdue(p) {
       if (p.payment !== 'PARCIAL' || !p.promisedDate) return false;
       const today = new Date().toISOString().split('T')[0];
       return p.promisedDate <= today;
     }
 
-    // MONTA O LINK DO WHATSAPP COM MENSAGEM INTELIGENTE
+    // MENSAGEM AUTOMÁTICA PERSONALIZADA POR TIPO DE PAGAMENTO
     function generateWhatsappLink(p) {
       if (!p.phone) return '#';
       const cleanPhone = p.phone.replace(/\D/g, '');
@@ -638,11 +652,11 @@
 
       let msg = "";
       if (p.payment === 'PARCIAL') {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você registrou o pagamento do SINAL. Pode me enviar o comprovante por aqui para confirmação?\n\nCaso já tenha enviado o comprovante, por favor informe a data limite para pagamento do valor restante.`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez a reserva pelo formato (SINAL). Pode me enviar o comprovante por aqui para confirmação?\n\nCaso já tenha enviado o comprovante, por favor informe a data limite para pagamento do valor restante.`;
       } else if (p.payment === 'PAGO') {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Por favor, envie o comprovante por aqui para confirmar sua vaga!`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Estou confirmando sua locação na van para a excursão! Caso ainda não tenha me mandado o comprovante, por favor envie por aqui.`;
       } else {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga. Segue em aberto para envio do comprovante.`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga na excursão. Segue em aberto para envio do comprovante.`;
       }
 
       return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
@@ -932,7 +946,12 @@
       document.getElementById('editPassengerId').value = p.id;
       document.getElementById('passNameInput').value = p.name;
       document.getElementById('passCitySelect').value = p.city;
-      document.getElementById('passPhoneInput').value = p.phone || '';
+      
+      // PREENCHE COM MÁSCARA AO EDITAR
+      const phoneInput = document.getElementById('passPhoneInput');
+      phoneInput.value = p.phone || '';
+      applyPhoneMask(phoneInput);
+
       document.getElementById('passPaymentSelect').value = p.payment;
       document.getElementById('passVanSelect').value = p.vanId || '';
       document.getElementById('passPromisedDateInput').value = p.promisedDate || '';
@@ -952,7 +971,6 @@
       togglePromisedDateField();
     }
 
-    // REMOVE PASSAGEIRO DA VAN COM CONFIRMAÇÃO
     async function handleUnassignVan(passengerId) {
       const p = state.passengers.find(x => x.id === passengerId);
       if (p) {
