@@ -26,8 +26,30 @@
 </head>
 <body class="text-slate-800 min-h-full flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
 
+  <!-- TELA DE LOGIN DO ADMINISTRADOR -->
+  <div id="adminLoginView" class="hidden flex-grow bg-slate-900 p-4 flex items-center justify-center safe-bottom">
+    <div class="max-w-sm w-full bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-2xl text-white">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 bg-emerald-500 text-slate-950 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-black shadow-lg shadow-emerald-500/20">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="text-lg font-bold">Painel do Organizador</h2>
+        <p class="text-xs text-slate-400 mt-1">Digite sua senha para acessar o dispositivo</p>
+      </div>
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Senha de Acesso</label>
+          <input type="password" id="adminPasswordInput" placeholder="Sua senha..." required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <p id="loginErrorMsg" class="text-xs text-rose-400 font-semibold hidden text-center">Senha incorreta. Tente novamente.</p>
+        <button type="submit" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition">Entrar no Painel</button>
+      </form>
+      <button onclick="activateClientMode()" class="w-full text-center text-xs text-slate-400 hover:text-slate-200 mt-4 block">Ir para Formulário de Cliente</button>
+    </div>
+  </div>
+
   <!-- HEADER ORGANIZADOR -->
-  <header id="appHeader" class="bg-slate-900 text-white sticky top-0 z-30 shadow-md safe-top">
+  <header id="appHeader" class="hidden bg-slate-900 text-white sticky top-0 z-30 shadow-md safe-top">
     <div class="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20">
@@ -44,25 +66,30 @@
           <i class="fa-solid fa-share-nodes"></i>
           <span>Link Cliente</span>
         </button>
-
-        <div id="supabaseStatusBadge" class="px-2.5 py-2 bg-slate-800 text-emerald-400 rounded-xl border border-slate-700 text-[10px] font-bold flex items-center space-x-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Sincronizado</span>
-        </div>
+        <button onclick="logoutAdmin()" class="px-2.5 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
       </div>
     </div>
   </header>
 
   <!-- ========================================== -->
-  <!-- TELA DO CLIENTE (?modo=cliente) -->
+  <!-- TELA DO CLIENTE -->
   <!-- ========================================== -->
   <div id="clientBookingView" class="hidden flex-grow bg-slate-100 p-4 flex items-center justify-center safe-bottom">
     <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden p-6 relative">
       
-      <div class="text-center mb-6">
-        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl border border-emerald-100 shadow-sm">
+      <div class="flex justify-between items-center mb-4">
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl border border-emerald-100 shadow-sm">
           <i class="fa-solid fa-van-shuttle"></i>
         </div>
+        <button onclick="showAdminLogin()" class="text-xs text-slate-400 hover:text-slate-600 font-semibold flex items-center space-x-1">
+          <i class="fa-solid fa-user-gear"></i>
+          <span>Área do Organizador</span>
+        </button>
+      </div>
+
+      <div class="text-center mb-6">
         <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Reserva de Excursão</h2>
         <p class="text-xs text-slate-500 mt-1">Garanta sua vaga na van e adicione acompanhantes.</p>
       </div>
@@ -73,7 +100,7 @@
           <i class="fa-solid fa-check"></i>
         </div>
         <h3 class="text-lg font-bold text-slate-900">Pré-Reserva Garantida!</h3>
-        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix do valor total e envie o comprovante no WhatsApp do organizador.</p>
+        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix correspondente e envie o comprovante no WhatsApp do organizador para confirmar.</p>
         
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left mb-5">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Chave PIX para pagamento:</p>
@@ -104,20 +131,29 @@
             <select id="clientCitySelect" onchange="updateClientVanOptions()" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp</label>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp (Obrigatório)</label>
             <input type="tel" id="clientPhoneInput" placeholder="(19) 99999-9999" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sua Van</label>
-          <select id="clientVanSelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sua Van</label>
+            <select id="clientVanSelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Pagamento</label>
+            <select id="clientPaymentOption" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+              <option value="PARCIAL">Reserva de Vaga (Sinal)</option>
+              <option value="PAGO">Pagamento Completo</option>
+            </select>
+          </div>
         </div>
 
         <!-- ACOMPANHANTES -->
         <div class="border-t border-slate-100 pt-4 mt-2">
           <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold text-slate-700 uppercase">Acompanhantes (Pago Junto)</span>
+            <span class="text-xs font-bold text-slate-700 uppercase">Acompanhantes</span>
             <button type="button" onclick="addCompanionField()" class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl hover:bg-emerald-100 transition flex items-center space-x-1">
               <i class="fa-solid fa-user-plus text-[10px]"></i>
               <span>+ Amigo</span>
@@ -137,7 +173,7 @@
   <!-- ========================================== -->
   <!-- PAINEL PRINCIPAL ORGANIZADOR -->
   <!-- ========================================== -->
-  <main id="organizerMainContainer" class="max-w-xl mx-auto px-4 mt-4 flex-grow w-full safe-bottom">
+  <main id="organizerMainContainer" class="hidden max-w-xl mx-auto px-4 mt-4 flex-grow w-full safe-bottom">
 
     <!-- RESUMO DE MÉTRICAS -->
     <div class="grid grid-cols-2 gap-3 mb-4">
@@ -158,9 +194,9 @@
       </div>
 
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold text-base"><i class="fa-pix fab"></i></div>
+        <div class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-circle-check"></i></div>
         <div>
-          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Pix Pagos</p>
+          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Completos</p>
           <h3 class="text-xl font-black text-emerald-600" id="statPixPago">0</h3>
         </div>
       </div>
@@ -168,7 +204,7 @@
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-clock"></i></div>
         <div>
-          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Pendentes</p>
+          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sinal/Pendente</p>
           <h3 class="text-xl font-black text-amber-600" id="statPixPendente">0</h3>
         </div>
       </div>
@@ -276,7 +312,7 @@
         <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Completo</label><input type="text" id="passNameInput" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
         <div class="grid grid-cols-2 gap-2">
           <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade</label><select id="passCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select></div>
-          <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Pix</label><select id="passPaymentSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="PAGO">Pago</option><option value="PARCIAL">Sinal</option><option value="PENDENTE" selected>Pendente</option></select></div>
+          <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Pagamento</label><select id="passPaymentSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="PAGO">Pago Completo</option><option value="PARCIAL">Reserva de Vaga (Sinal)</option><option value="PENDENTE" selected>Pendente</option></select></div>
         </div>
         <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Van Atribuída</label><select id="passVanSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="">Sem Van (Lista de Espera)</option></select></div>
         <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp / Observações</label><input type="text" id="passNotesInput" placeholder="Ex: (19) 99999-9999" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
@@ -285,11 +321,13 @@
     </div>
   </div>
 
-  <!-- LÓGICA JAVASCRIPT COM SUPABASE EMBUTIDO -->
   <script>
-    // CREDENCIAIS DO SUPABASE JÁ CONFIGURADAS
+    // CREDENCIAIS DO SUPABASE
     const SB_URL = 'https://xudhsnaqifdswiuogjdh.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1ZGhzbmFxaWZkc3dpdW9namRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTQ4NDMsImV4cCI6MjEwODY5MDg0M30.4GKnAtKG9A2VyTFHGPl1Dc7APEb6LXmtmPhHaj6eiFs';
+
+    // SENHA DO ORGANIZADOR/ADMIN
+    const ADMIN_PASSWORD_HASH = "123456"; // Altere aqui se quiser mudar a senha do painel
 
     let state = { cities: ['Araras', 'Leme', 'Pirassununga', 'Rio Claro'], vans: [], passengers: [] };
     let supabaseClient = null;
@@ -298,11 +336,13 @@
       initSupabase();
       await loadData();
       
+      const isRecognizedAdmin = localStorage.getItem('vg_admin_authenticated') === 'true';
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('modo') === 'cliente') {
-        activateClientMode();
+      
+      if (isRecognizedAdmin && urlParams.get('modo') !== 'cliente') {
+        activateAdminMode();
       } else {
-        renderApp();
+        activateClientMode();
       }
     });
 
@@ -315,7 +355,6 @@
     }
 
     async function loadData() {
-      // Tenta carregar do Supabase primeiro se conectado
       if (supabaseClient) {
         try {
           const { data: cData } = await supabaseClient.from('cities').select('*');
@@ -342,15 +381,12 @@
         }
       }
 
-      // Fallback para LocalStorage se falhar
       state.cities = JSON.parse(localStorage.getItem('vg_cities')) || state.cities;
       state.vans = JSON.parse(localStorage.getItem('vg_vans')) || [
         { id: 'v1', name: 'Van 01 - Principal', baseCity: 'Leme', capacity: 16, allowCrossCity: true },
         { id: 'v2', name: 'Van 02 - Express', baseCity: 'Araras', capacity: 15, allowCrossCity: false }
       ];
-      state.passengers = JSON.parse(localStorage.getItem('vg_passengers')) || [
-        { id: 'p1', name: 'Lucas Silva', city: 'Leme', payment: 'PAGO', vanId: 'v1', notes: '19988887777' }
-      ];
+      state.passengers = JSON.parse(localStorage.getItem('vg_passengers')) || [];
     }
 
     function saveLocal() {
@@ -371,10 +407,42 @@
       try { await supabaseClient.from(table).delete().eq('id', id); } catch (e) { console.error(e); }
     }
 
-    // MODO CLIENTE
+    // AUTENTICAÇÃO E MODO ADMIN / CLIENTE
+    function showAdminLogin() {
+      document.getElementById('clientBookingView').classList.add('hidden');
+      document.getElementById('adminLoginView').classList.remove('hidden');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('adminPasswordInput').value;
+      if (pass === ADMIN_PASSWORD_HASH) {
+        localStorage.setItem('vg_admin_authenticated', 'true');
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('loginErrorMsg').classList.add('hidden');
+        activateAdminMode();
+      } else {
+        document.getElementById('loginErrorMsg').classList.remove('hidden');
+      }
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem('vg_admin_authenticated');
+      activateClientMode();
+    }
+
+    function activateAdminMode() {
+      document.getElementById('adminLoginView').classList.add('hidden');
+      document.getElementById('clientBookingView').classList.add('hidden');
+      document.getElementById('appHeader').classList.remove('hidden');
+      document.getElementById('organizerMainContainer').classList.remove('hidden');
+      renderApp();
+    }
+
     function activateClientMode() {
-      document.getElementById('appHeader').style.display = 'none';
-      document.getElementById('organizerMainContainer').style.display = 'none';
+      document.getElementById('adminLoginView').classList.add('hidden');
+      document.getElementById('appHeader').classList.add('hidden');
+      document.getElementById('organizerMainContainer').classList.add('hidden');
       document.getElementById('clientBookingView').classList.remove('hidden');
 
       const citySelect = document.getElementById('clientCitySelect');
@@ -424,13 +492,22 @@
           <select class="companion-city w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
             ${state.cities.map(c => `<option value="${c}">${c}</option>`).join('')}
           </select>
-          <input type="tel" placeholder="WhatsApp" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+          <input type="tel" placeholder="WhatsApp (Obrigatório)" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
         </div>
-        <div>
-          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Van do Acompanhante</label>
-          <select class="companion-van w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
-            ${vanOptionsHtml}
-          </select>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Van do Acompanhante</label>
+            <select class="companion-van w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+              ${vanOptionsHtml}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Pagamento</label>
+            <select class="companion-payment w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+              <option value="PARCIAL">Reserva (Sinal)</option>
+              <option value="PAGO">Pago Completo</option>
+            </select>
+          </div>
         </div>
       `;
       container.appendChild(div);
@@ -442,10 +519,11 @@
       const mainCity = document.getElementById('clientCitySelect').value;
       const vanId = document.getElementById('clientVanSelect').value;
       const mainPhone = document.getElementById('clientPhoneInput').value.trim();
+      const mainPayment = document.getElementById('clientPaymentOption').value;
 
-      const mainPass = { id: 'p_' + Date.now(), name: mainName, city: mainCity, payment: 'PENDENTE', vanId, notes: `Wpp: ${mainPhone} (Comprador)` };
+      const mainPass = { id: 'p_' + Date.now(), name: mainName, city: mainCity, payment: mainPayment, vanId, notes: `Wpp: ${mainPhone} (Comprador)` };
       state.passengers.push(mainPass);
-      await syncToSupabase('passengers', { id: mainPass.id, name: mainName, city: mainCity, payment: 'PENDENTE', van_id: vanId, notes: mainPass.notes });
+      await syncToSupabase('passengers', { id: mainPass.id, name: mainName, city: mainCity, payment: mainPayment, van_id: vanId, notes: mainPass.notes });
 
       const rows = document.querySelectorAll('#companionsContainer > div');
       for (let i = 0; i < rows.length; i++) {
@@ -454,17 +532,20 @@
         const compCity = row.querySelector('.companion-city').value;
         const compPhone = row.querySelector('.companion-phone').value.trim();
         const compVanId = row.querySelector('.companion-van').value;
+        const compPayment = row.querySelector('.companion-payment').value;
 
         if (compName) {
           const compId = `p_${Date.now()}_${i}`;
-          const compPass = { id: compId, name: compName, city: compCity, payment: 'PENDENTE', vanId: compVanId, notes: `Wpp: ${compPhone} (Pago por ${mainName})` };
+          const compPass = { id: compId, name: compName, city: compCity, payment: compPayment, vanId: compVanId, notes: `Wpp: ${compPhone} (Pago por ${mainName})` };
           state.passengers.push(compPass);
-          await syncToSupabase('passengers', { id: compId, name: compName, city: compCity, payment: 'PENDENTE', van_id: compVanId, notes: compPass.notes });
+          await syncToSupabase('passengers', { id: compId, name: compName, city: compCity, payment: compPayment, van_id: compVanId, notes: compPass.notes });
         }
       }
 
       const totalVegas = 1 + rows.length;
-      const msg = encodeURIComponent(`Olá! Sou o(a) ${mainName} e fiz a reserva de ${totalVegas} vaga(s). Segue o comprovante do Pix único!`);
+      const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
+      const msg = encodeURIComponent(`Olá! Sou o(a) ${mainName} e fiz a reserva de ${totalVegas} vaga(s) com a opção de [${tipoPagamentoTexto}]. Segue o comprovante em anexo!`);
+      
       document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/5519999999999?text=${msg}`;
 
       document.getElementById('clientBookingForm').classList.add('hidden');
@@ -481,7 +562,7 @@
 
     function copyClientLink() {
       const clientUrl = `${window.location.href.split('?')[0]}?modo=cliente`;
-      navigator.clipboard.writeText(clientUrl).then(() => alert('Link copiado! Envie no WhatsApp.'));
+      navigator.clipboard.writeText(clientUrl).then(() => alert('Link de clientes copiado com sucesso!'));
     }
 
     function copyPixKey() {
@@ -515,7 +596,7 @@
       document.getElementById('statTotalPassangens').innerText = state.passengers.length;
       document.getElementById('statTotalVans').innerText = state.vans.length;
       document.getElementById('statPixPago').innerText = state.passengers.filter(p => p.payment === 'PAGO').length;
-      document.getElementById('statPixPendente').innerText = state.passengers.filter(p => p.payment === 'PENDENTE').length;
+      document.getElementById('statPixPendente').innerText = state.passengers.filter(p => p.payment === 'PARCIAL' || p.payment === 'PENDENTE').length;
     }
 
     function renderVans() {
@@ -556,7 +637,9 @@
           <div class="p-3 divide-y divide-slate-100 max-h-72 overflow-y-auto custom-scrollbar">
             ${passengersInVan.length === 0 ? `<p class="text-xs text-slate-400 italic text-center py-4">Nenhum passageiro nesta van.</p>` : passengersInVan.map(p => {
               const cleanPhone = p.notes ? p.notes.replace(/\D/g, '') : '';
-              const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Olá%20${encodeURIComponent(p.name)},%20sobre%20sua%20vaga...` : '#';
+              const paymentLabel = p.payment === 'PAGO' ? 'Pagamento Completo' : 'Reserva/Sinal';
+              const waMessage = encodeURIComponent(`Olá ${p.name}, aqui é da organização da Excursão! Vi que você fez a reserva de vaga no formato (${paymentLabel}). Pode me enviar o comprovante por aqui para confirmação?`);
+              const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=${waMessage}` : '#';
               const isGroup = p.notes && p.notes.includes('Pago por');
               return `
               <div class="py-2 flex items-center justify-between">
@@ -564,7 +647,7 @@
                   <div class="flex items-center space-x-1.5">
                     <span class="font-bold text-slate-800 text-xs">${p.name}</span>
                     ${getPaymentBadge(p.payment)}
-                    ${cleanPhone ? `<a href="${waLink}" target="_blank" class="text-green-600 text-xs"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                    ${cleanPhone ? `<a href="${waLink}" target="_blank" title="Confirmar pagamento no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
                   </div>
                   <div class="flex items-center space-x-1 mt-0.5">
                     <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded-md">${p.city}</span>
@@ -621,7 +704,9 @@
       filtered.forEach(p => {
         const van = state.vans.find(v => v.id === p.vanId);
         const cleanPhone = p.notes ? p.notes.replace(/\D/g, '') : '';
-        const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Olá%20${encodeURIComponent(p.name)},%20sobre%20a%20sua%20vaga...` : '#';
+        const paymentLabel = p.payment === 'PAGO' ? 'Pagamento Completo' : 'Reserva de Vaga (Sinal)';
+        const waMessage = encodeURIComponent(`Olá ${p.name}, aqui é da organização da Excursão! Vi que você registrou o pagamento como (${paymentLabel}). Pode me enviar o comprovante por aqui para eu confirmar a vaga?`);
+        const waLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=${waMessage}` : '#';
 
         const div = document.createElement('div');
         div.className = "p-3.5 flex items-center justify-between hover:bg-slate-50 transition";
@@ -630,7 +715,7 @@
             <div class="flex items-center space-x-2">
               <span class="font-bold text-slate-900 text-xs">${p.name}</span>
               ${getPaymentBadge(p.payment)}
-              ${cleanPhone ? `<a href="${waLink}" target="_blank" class="text-green-600 text-xs"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+              ${cleanPhone ? `<a href="${waLink}" target="_blank" title="Abrir conversa para confirmar comprovante" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
             </div>
             <div class="flex items-center space-x-1.5 text-[10px]">
               <span class="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${p.city}</span>
@@ -694,7 +779,7 @@
     }
 
     function getPaymentBadge(status) {
-      if (status === 'PAGO') return `<span class="bg-emerald-100 text-emerald-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pago</span>`;
+      if (status === 'PAGO') return `<span class="bg-emerald-100 text-emerald-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pago Total</span>`;
       if (status === 'PARCIAL') return `<span class="bg-blue-100 text-blue-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Sinal</span>`;
       return `<span class="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pendente</span>`;
     }
