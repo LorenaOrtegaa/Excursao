@@ -31,20 +31,23 @@
     <div class="max-w-sm w-full bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-2xl text-white">
       <div class="text-center mb-6">
         <div class="w-14 h-14 bg-emerald-500 text-slate-950 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-black shadow-lg shadow-emerald-500/20">
-          <i class="fa-solid fa-lock"></i>
+          <i class="fa-solid fa-user-shield"></i>
         </div>
         <h2 class="text-lg font-bold">Painel do Organizador</h2>
-        <p class="text-xs text-slate-400 mt-1">Digite sua senha para acessar o dispositivo</p>
+        <p class="text-xs text-slate-400 mt-1">Informe seu usuário e senha para acessar</p>
       </div>
       <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Usuário</label>
+          <input type="text" id="adminUsernameInput" placeholder="Seu usuário..." required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
         <div>
           <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Senha de Acesso</label>
           <input type="password" id="adminPasswordInput" placeholder="Sua senha..." required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
-        <p id="loginErrorMsg" class="text-xs text-rose-400 font-semibold hidden text-center">Senha incorreta. Tente novamente.</p>
+        <p id="loginErrorMsg" class="text-xs text-rose-400 font-semibold hidden text-center">Usuário ou senha incorretos. Tente novamente.</p>
         <button type="submit" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition">Entrar no Painel</button>
       </form>
-      <button onclick="activateClientMode()" class="w-full text-center text-xs text-slate-400 hover:text-slate-200 mt-4 block">Ir para Formulário de Cliente</button>
     </div>
   </div>
 
@@ -66,7 +69,7 @@
           <i class="fa-solid fa-share-nodes"></i>
           <span>Link Cliente</span>
         </button>
-        <button onclick="logoutAdmin()" class="px-2.5 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700">
+        <button onclick="logoutAdmin()" title="Sair / Desconectar Dispositivo" class="px-2.5 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
@@ -74,22 +77,15 @@
   </header>
 
   <!-- ========================================== -->
-  <!-- TELA DO CLIENTE -->
+  <!-- TELA DO CLIENTE (?modo=cliente) -->
   <!-- ========================================== -->
   <div id="clientBookingView" class="hidden flex-grow bg-slate-100 p-4 flex items-center justify-center safe-bottom">
     <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden p-6 relative">
       
-      <div class="flex justify-between items-center mb-4">
-        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl border border-emerald-100 shadow-sm">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl border border-emerald-100 shadow-sm">
           <i class="fa-solid fa-van-shuttle"></i>
         </div>
-        <button onclick="showAdminLogin()" class="text-xs text-slate-400 hover:text-slate-600 font-semibold flex items-center space-x-1">
-          <i class="fa-solid fa-user-gear"></i>
-          <span>Área do Organizador</span>
-        </button>
-      </div>
-
-      <div class="text-center mb-6">
         <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Reserva de Excursão</h2>
         <p class="text-xs text-slate-500 mt-1">Garanta sua vaga na van e adicione acompanhantes.</p>
       </div>
@@ -326,8 +322,9 @@
     const SB_URL = 'https://xudhsnaqifdswiuogjdh.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1ZGhzbmFxaWZkc3dpdW9namRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTQ4NDMsImV4cCI6MjEwODY5MDg0M30.4GKnAtKG9A2VyTFHGPl1Dc7APEb6LXmtmPhHaj6eiFs';
 
-    // SENHA DO ORGANIZADOR/ADMIN (Você pode mudar aqui)
-    const ADMIN_PASSWORD_HASH = "123456"; 
+    // AUTENTICAÇÃO DO ORGANIZADOR/ADMIN
+    const ADMIN_USER = "ExcLorena"; 
+    const ADMIN_PASS = "loexcurcoes2004"; 
 
     let state = { cities: ['Araras', 'Leme', 'Pirassununga', 'Rio Claro'], vans: [], passengers: [] };
     let supabaseClient = null;
@@ -336,13 +333,19 @@
       initSupabase();
       await loadData();
       
-      const isRecognizedAdmin = localStorage.getItem('vg_admin_authenticated') === 'true';
       const urlParams = new URLSearchParams(window.location.search);
+      const isClientMode = urlParams.get('modo') === 'cliente';
+      const isRecognizedAdmin = localStorage.getItem('vg_admin_authenticated') === 'true';
       
-      if (isRecognizedAdmin && urlParams.get('modo') !== 'cliente') {
+      if (isClientMode) {
+        // CLIENTE: abre direto o formulário de reserva
+        activateClientMode();
+      } else if (isRecognizedAdmin) {
+        // ADMIN AUTENTICADO: abre o Painel do Organizador direto
         activateAdminMode();
       } else {
-        activateClientMode();
+        // DISPOSITIVO NOVO: Pede login e senha do Admin
+        showAdminLogin();
       }
     });
 
@@ -410,14 +413,19 @@
     // AUTENTICAÇÃO E MODO ADMIN / CLIENTE
     function showAdminLogin() {
       document.getElementById('clientBookingView').classList.add('hidden');
+      document.getElementById('appHeader').classList.add('hidden');
+      document.getElementById('organizerMainContainer').classList.add('hidden');
       document.getElementById('adminLoginView').classList.remove('hidden');
     }
 
     function handleAdminLogin(e) {
       e.preventDefault();
-      const pass = document.getElementById('adminPasswordInput').value;
-      if (pass === ADMIN_PASSWORD_HASH) {
+      const user = document.getElementById('adminUsernameInput').value.trim();
+      const pass = document.getElementById('adminPasswordInput').value.trim();
+      
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
         localStorage.setItem('vg_admin_authenticated', 'true');
+        document.getElementById('adminUsernameInput').value = '';
         document.getElementById('adminPasswordInput').value = '';
         document.getElementById('loginErrorMsg').classList.add('hidden');
         activateAdminMode();
@@ -428,7 +436,7 @@
 
     function logoutAdmin() {
       localStorage.removeItem('vg_admin_authenticated');
-      activateClientMode();
+      showAdminLogin();
     }
 
     function activateAdminMode() {
@@ -561,8 +569,9 @@
     }
 
     function copyClientLink() {
-      const clientUrl = `${window.location.href.split('?')[0]}?modo=cliente`;
-      navigator.clipboard.writeText(clientUrl).then(() => alert('Link de clientes copiado com sucesso!'));
+      const baseUrl = window.location.href.split('?')[0];
+      const clientUrl = `${baseUrl}?modo=cliente`;
+      navigator.clipboard.writeText(clientUrl).then(() => alert('Link do Cliente copiado com sucesso! Pode enviar pelo WhatsApp.'));
     }
 
     function copyPixKey() {
