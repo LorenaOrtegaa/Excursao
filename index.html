@@ -172,4 +172,943 @@
         <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-users"></i></div>
         <div>
           <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Passageiros</p>
-          <h3 class="
+          <h3 class="text-xl font-black text-slate-900" id="statTotalPassangens">0</h3>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-van-shuttle"></i></div>
+        <div>
+          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Vans</p>
+          <h3 class="text-xl font-black text-slate-900" id="statTotalVans">0</h3>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-circle-check"></i></div>
+        <div>
+          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Completos</p>
+          <h3 class="text-xl font-black text-emerald-600" id="statPixPago">0</h3>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-clock"></i></div>
+        <div>
+          <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sinal/Pendente</p>
+          <h3 class="text-xl font-black text-amber-600" id="statPixPendente">0</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVEGAÇÃO ENTRE ABAS -->
+    <div class="flex bg-slate-200/80 p-1 rounded-2xl mb-4 space-x-1">
+      <button onclick="switchTab('vansTab')" id="btnTabVans" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-white text-slate-900 shadow-sm">
+        <i class="fa-solid fa-van-shuttle mr-1"></i> Vans
+      </button>
+      <button onclick="switchTab('passengersTab')" id="btnTabPassengers" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-slate-900">
+        <i class="fa-solid fa-address-book mr-1"></i> Lista
+      </button>
+      <button onclick="switchTab('citiesTab')" id="btnTabCities" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-slate-900">
+        <i class="fa-solid fa-city mr-1"></i> Cidades
+      </button>
+    </div>
+
+    <!-- BOTÕES AÇÕES RÁPIDAS -->
+    <div class="flex space-x-2 mb-4">
+      <button onclick="openModal('addPassengerModal')" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>+ Passageiro</span>
+      </button>
+      <button onclick="openModal('addVanModal')" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition">
+        <i class="fa-solid fa-plus"></i>
+        <span>+ Nova Van</span>
+      </button>
+    </div>
+
+    <!-- CAMPO BUSCA -->
+    <div class="relative mb-4">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+      <input type="text" id="searchInput" placeholder="Buscar passageiro ou cidade..." oninput="renderApp()" class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+    </div>
+
+    <!-- ABA VANS -->
+    <div id="vansTab" class="space-y-4">
+      <div id="vansContainer" class="space-y-4"></div>
+    </div>
+
+    <!-- ABA PASSAGEIROS -->
+    <div id="passengersTab" class="hidden">
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div id="passengersMobileList" class="divide-y divide-slate-100"></div>
+      </div>
+    </div>
+
+    <!-- ABA CIDADES -->
+    <div id="citiesTab" class="hidden">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center"><i class="fa-solid fa-city text-emerald-600 mr-2"></i> Cidades Cadastradas</h2>
+        <form onsubmit="handleAddCity(event)" class="flex gap-2 mb-4">
+          <input type="text" id="newCityInput" placeholder="Nova cidade..." required class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <button type="submit" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Adicionar</button>
+        </form>
+        <div id="citiesList" class="divide-y divide-slate-100"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL MOVER -->
+  <div id="movePassengerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-sm w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
+      <button onclick="closeModal('movePassengerModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-extrabold text-slate-900 mb-1">Mover de Van</h3>
+      <p class="text-xs text-slate-500 mb-4" id="movePassengerSubtext"></p>
+      <form onsubmit="handleConfirmMovePassenger(event)" class="space-y-4">
+        <input type="hidden" id="movePassengerId">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nova Van</label>
+          <select id="moveTargetVanSelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500"></select>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('movePassengerModal')" class="px-4 py-2 text-slate-600 text-xs font-bold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Mover</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ADICIONAR VAN -->
+  <div id="addVanModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
+      <button onclick="closeModal('addVanModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-extrabold text-slate-900 mb-4">Nova Van</h3>
+      <form onsubmit="handleSaveVan(event)" class="space-y-3">
+        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome da Van</label><input type="text" id="vanNameInput" placeholder="Ex: Van 01 - Alpha" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade Base</label><select id="vanBaseCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select></div>
+        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Capacidade</label><select id="vanCapacitySelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="15">15 Lugares</option><option value="16" selected>16 Lugares</option><option value="18">18 Lugares</option><option value="20">20 Lugares</option></select></div>
+        <div class="flex items-center space-x-2 pt-1"><input type="checkbox" id="vanCrossCityCheck" class="w-4 h-4 text-emerald-600 rounded"><label for="vanCrossCityCheck" class="text-xs font-semibold text-slate-700">Permitir Embarque Multi-Cidade</label></div>
+        <div class="flex justify-end space-x-2 pt-3"><button type="button" onclick="closeModal('addVanModal')" class="px-4 py-2 text-slate-600 text-xs font-bold">Cancelar</button><button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Salvar Van</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PASSAGEIRO (ADMIN) -->
+  <div id="addPassengerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
+      <button onclick="closeModal('addPassengerModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-extrabold text-slate-900 mb-4" id="passengerModalTitle">Adicionar Passageiro</h3>
+      <form onsubmit="handleSavePassenger(event)" class="space-y-3">
+        <input type="hidden" id="editPassengerId">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome Completo</label>
+          <input type="text" id="passNameInput" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade</label>
+            <select id="passCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp</label>
+            <input type="tel" id="passPhoneInput" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Status Pagamento</label>
+            <select id="passPaymentSelect" onchange="togglePromisedDateField()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+              <option value="PAGO">Pago Completo</option>
+              <option value="PARCIAL">Reserva de Vaga (Sinal)</option>
+              <option value="PENDENTE" selected>Pendente</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Van Atribuída</label>
+            <select id="passVanSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+              <option value="">Sem Van (Lista de Espera)</option>
+            </select>
+          </div>
+        </div>
+        <div id="promisedDateContainer" class="hidden">
+          <label class="block text-xs font-bold text-amber-700 uppercase mb-1">Data Prometida para Quitar Restante</label>
+          <input type="date" id="passPromisedDateInput" class="w-full px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-bold text-slate-800">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações / Quem Pagou</label>
+          <input type="text" id="passNotesInput" placeholder="Ex: Pago por João" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+        </div>
+        <div class="flex justify-end space-x-2 pt-3">
+          <button type="button" onclick="closeModal('addPassengerModal')" class="px-4 py-2 text-slate-600 text-xs font-bold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Salvar Passageiro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // NÚMERO DE WHATSAPP DA LORENA
+    const LORENA_WHATSAPP = "5519999653211"; 
+
+    // CREDENCIAIS DO SUPABASE
+    const SB_URL = 'https://xudhsnaqifdswiuogjdh.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1ZGhzbmFxaWZkc3dpdW9namRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTQ4NDMsImV4cCI6MjEwODY5MDg0M30.4GKnAtKG9A2VyTFHGPl1Dc7APEb6LXmtmPhHaj6eiFs';
+
+    // AUTENTICAÇÃO DO ORGANIZADOR/ADMIN
+    const ADMIN_USER = "ExcLorena"; 
+    const ADMIN_PASS = "loexcurcoes2004"; 
+
+    let state = { cities: ['Araras', 'Leme', 'Pirassununga', 'Rio Claro'], vans: [], passengers: [] };
+    let supabaseClient = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      initSupabase();
+      await loadData();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const isClientMode = urlParams.get('modo') === 'cliente';
+      const isRecognizedAdmin = localStorage.getItem('vg_admin_authenticated') === 'true';
+      
+      if (isClientMode) {
+        activateClientMode();
+      } else if (isRecognizedAdmin) {
+        activateAdminMode();
+        setInterval(loadDataSilent, 5000);
+      } else {
+        showAdminLogin();
+      }
+    });
+
+    function initSupabase() {
+      if (window.supabase && SB_URL && SB_KEY) {
+        try {
+          supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+        } catch (e) { console.error("Erro ao iniciar Supabase:", e); }
+      }
+    }
+
+    function applyPhoneMask(input) {
+      let value = input.value.replace(/\D/g, '');
+      if (value.length > 11) value = value.slice(0, 11);
+
+      if (value.length > 6) {
+        input.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+      } else if (value.length > 2) {
+        input.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+      } else if (value.length > 0) {
+        input.value = `(${value}`;
+      } else {
+        input.value = '';
+      }
+    }
+
+    function togglePromisedDateField() {
+      const paymentStatus = document.getElementById('passPaymentSelect').value;
+      const container = document.getElementById('promisedDateContainer');
+      if (paymentStatus === 'PARCIAL') {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+        document.getElementById('passPromisedDateInput').value = '';
+      }
+    }
+
+    async function loadData() {
+      if (supabaseClient) {
+        try {
+          const { data: cData } = await supabaseClient.from('cities').select('*');
+          if (cData && cData.length > 0) state.cities = cData.map(c => c.name);
+
+          const { data: vData } = await supabaseClient.from('vans').select('*');
+          if (vData) {
+            state.vans = vData.map(v => ({ id: v.id, name: v.name, baseCity: v.base_city, capacity: v.capacity, allowCrossCity: v.allow_cross_city }));
+          }
+
+          const { data: pData } = await supabaseClient.from('passengers').select('*');
+          if (pData) {
+            state.passengers = pData.map(p => ({
+              id: p.id,
+              name: p.name,
+              city: p.city,
+              payment: p.payment,
+              vanId: p.van_id,
+              notes: p.notes,
+              phone: p.phone || '',
+              promisedDate: p.promised_date || ''
+            }));
+          }
+          saveLocal();
+          if (localStorage.getItem('vg_admin_authenticated') === 'true') {
+            renderApp();
+          }
+          return;
+        } catch (err) {
+          console.warn("Erro ao carregar do Supabase:", err);
+        }
+      }
+
+      state.cities = JSON.parse(localStorage.getItem('vg_cities')) || state.cities;
+      state.vans = JSON.parse(localStorage.getItem('vg_vans')) || [];
+      state.passengers = JSON.parse(localStorage.getItem('vg_passengers')) || [];
+    }
+
+    async function loadDataSilent() {
+      if (!supabaseClient || localStorage.getItem('vg_admin_authenticated') !== 'true') return;
+      try {
+        const { data: pData } = await supabaseClient.from('passengers').select('*');
+        if (pData) {
+          state.passengers = pData.map(p => ({
+            id: p.id,
+            name: p.name,
+            city: p.city,
+            payment: p.payment,
+            vanId: p.van_id,
+            notes: p.notes,
+            phone: p.phone || '',
+            promisedDate: p.promised_date || ''
+          }));
+          saveLocal();
+          renderApp();
+        }
+      } catch (e) {
+        console.error("Erro na sincronização silenciosa:", e);
+      }
+    }
+
+    function saveLocal() {
+      localStorage.setItem('vg_cities', JSON.stringify(state.cities));
+      localStorage.setItem('vg_vans', JSON.stringify(state.vans));
+      localStorage.setItem('vg_passengers', JSON.stringify(state.passengers));
+    }
+
+    async function syncToSupabase(table, payload) {
+      saveLocal();
+      if (!supabaseClient) return;
+      try { 
+        const { error } = await supabaseClient.from(table).upsert(payload);
+        if (error) console.error("Erro Supabase ao salvar:", error);
+      } catch (e) { console.error("Exceção ao sincronizar:", e); }
+    }
+
+    async function deleteFromSupabase(table, id) {
+      saveLocal();
+      if (!supabaseClient) return;
+      try { await supabaseClient.from(table).delete().eq('id', id); } catch (e) { console.error(e); }
+    }
+
+    function showAdminLogin() {
+      document.getElementById('clientBookingView').classList.add('hidden');
+      document.getElementById('appHeader').classList.add('hidden');
+      document.getElementById('organizerMainContainer').classList.add('hidden');
+      document.getElementById('adminLoginView').classList.remove('hidden');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('adminUsernameInput').value.trim();
+      const pass = document.getElementById('adminPasswordInput').value.trim();
+      
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        localStorage.setItem('vg_admin_authenticated', 'true');
+        document.getElementById('adminUsernameInput').value = '';
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('loginErrorMsg').classList.add('hidden');
+        activateAdminMode();
+      } else {
+        document.getElementById('loginErrorMsg').classList.remove('hidden');
+      }
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem('vg_admin_authenticated');
+      showAdminLogin();
+    }
+
+    function activateAdminMode() {
+      document.getElementById('adminLoginView').classList.add('hidden');
+      document.getElementById('clientBookingView').classList.add('hidden');
+      document.getElementById('appHeader').classList.remove('hidden');
+      document.getElementById('organizerMainContainer').classList.remove('hidden');
+      renderApp();
+    }
+
+    function activateClientMode() {
+      document.getElementById('adminLoginView').classList.add('hidden');
+      document.getElementById('appHeader').classList.add('hidden');
+      document.getElementById('organizerMainContainer').classList.add('hidden');
+      document.getElementById('clientBookingView').classList.remove('hidden');
+
+      const citySelect = document.getElementById('clientCitySelect');
+      citySelect.innerHTML = '';
+      state.cities.forEach(c => citySelect.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    let companionCount = 0;
+    function addCompanionField() {
+      companionCount++;
+      const container = document.getElementById('companionsContainer');
+      const div = document.createElement('div');
+      div.className = "p-3 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2 relative";
+      div.id = `companionRow_${companionCount}`;
+
+      div.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-emerald-700 uppercase">Acompanhante #${companionCount}</span>
+          <button type="button" onclick="document.getElementById('companionRow_${companionCount}').remove()" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <input type="text" placeholder="Nome Completo (Nome e Sobrenome)" class="companion-name w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+        <div class="grid grid-cols-2 gap-2">
+          <select class="companion-city w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+            ${state.cities.map(c => `<option value="${c}">${c}</option>`).join('')}
+          </select>
+          <input type="tel" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" class="companion-phone w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+        </div>
+        <div>
+          <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Pagamento Acompanhante</label>
+          <select class="companion-payment w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs" required>
+            <option value="PARCIAL">Reserva (Sinal)</option>
+            <option value="PAGO">Pago Completo</option>
+          </select>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    function isValidFullName(name) {
+      const parts = name.trim().split(/\s+/);
+      return parts.length >= 2 && parts[0].length > 1 && parts[1].length > 1;
+    }
+
+    async function handleClientSubmitBooking(e) {
+      e.preventDefault();
+      
+      const mainNameInput = document.getElementById('clientNameInput');
+      const nameErrorMsg = document.getElementById('nameErrorMsg');
+      const mainName = mainNameInput.value.trim();
+
+      if (!isValidFullName(mainName)) {
+        nameErrorMsg.classList.remove('hidden');
+        mainNameInput.focus();
+        return;
+      } else {
+        nameErrorMsg.classList.add('hidden');
+      }
+
+      const compRows = document.querySelectorAll('#companionsContainer > div');
+      for (let i = 0; i < compRows.length; i++) {
+        const compNameVal = compRows[i].querySelector('.companion-name').value.trim();
+        if (!isValidFullName(compNameVal)) {
+          alert(`O acompanhante #${i+1} precisa ter nome e sobrenome completos.`);
+          compRows[i].querySelector('.companion-name').focus();
+          return;
+        }
+      }
+
+      const btnSubmit = document.getElementById('btnSubmitBooking');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<span>Salvando pré-reserva...</span>`;
+
+      try {
+        const mainCity = document.getElementById('clientCitySelect').value;
+        const mainPhone = document.getElementById('clientPhoneInput').value.trim().replace(/\D/g, '');
+        const mainPayment = document.getElementById('clientPaymentOption').value;
+
+        const mainPass = { 
+          id: 'p_' + Date.now() + Math.random().toString(36).substr(2, 4), 
+          name: mainName, 
+          city: mainCity, 
+          payment: mainPayment, 
+          vanId: null, 
+          phone: mainPhone, 
+          notes: 'Comprador Principal', 
+          promisedDate: '' 
+        };
+        
+        state.passengers.push(mainPass);
+        await syncToSupabase('passengers', { 
+          id: mainPass.id, 
+          name: mainPass.name, 
+          city: mainPass.city, 
+          payment: mainPass.payment, 
+          van_id: null, 
+          phone: mainPass.phone, 
+          notes: mainPass.notes, 
+          promised_date: null 
+        });
+
+        for (let i = 0; i < compRows.length; i++) {
+          const row = compRows[i];
+          const compName = row.querySelector('.companion-name').value.trim();
+          const compCity = row.querySelector('.companion-city').value;
+          const compPhone = row.querySelector('.companion-phone').value.trim().replace(/\D/g, '');
+          const compPayment = row.querySelector('.companion-payment').value;
+
+          if (compName) {
+            const compId = 'p_' + Date.now() + '_' + i + Math.random().toString(36).substr(2, 4);
+            const compPass = { 
+              id: compId, 
+              name: compName, 
+              city: compCity, 
+              payment: compPayment, 
+              vanId: null, 
+              phone: compPhone, 
+              notes: `Acompanhante de ${mainName}`, 
+              promisedDate: '' 
+            };
+            state.passengers.push(compPass);
+            await syncToSupabase('passengers', { 
+              id: compPass.id, 
+              name: compPass.name, 
+              city: compPass.city, 
+              payment: compPass.payment, 
+              van_id: null, 
+              phone: compPass.phone, 
+              notes: compPass.notes, 
+              promised_date: null 
+            });
+          }
+        }
+
+        const totalVagas = 1 + compRows.length;
+        const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
+        const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} e fiz a reserva de ${totalVagas} vaga(s) no formato [${tipoPagamentoTexto}]. Segue o meu comprovante por aqui!`);
+        
+        document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/${LORENA_WHATSAPP}?text=${msg}`;
+
+        document.getElementById('clientBookingForm').classList.add('hidden');
+        document.getElementById('clientBookingSuccess').classList.remove('hidden');
+      } catch (err) {
+        console.error("Erro ao enviar reserva:", err);
+        alert("Ocorreu um erro ao salvar sua reserva. Tente novamente.");
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<span>Confirmar & Reservar Vagas</span><i class="fa-solid fa-arrow-right text-xs"></i>`;
+      }
+    }
+
+    function resetClientForm() {
+      document.getElementById('clientBookingForm').reset();
+      document.getElementById('companionsContainer').innerHTML = '';
+      document.getElementById('clientBookingForm').classList.remove('hidden');
+      document.getElementById('clientBookingSuccess').classList.add('hidden');
+    }
+
+    function copyClientLink() {
+      const baseUrl = window.location.href.split('?')[0];
+      const clientUrl = `${baseUrl}?modo=cliente`;
+      navigator.clipboard.writeText(clientUrl).then(() => alert('Link do Cliente copiado com sucesso! Pode enviar pelo WhatsApp.'));
+    }
+
+    function copyPixKey() {
+      navigator.clipboard.writeText(document.getElementById('pixKeyText').innerText).then(() => alert('Chave Pix copiada!'));
+    }
+
+    function switchTab(tabId) {
+      ['vansTab', 'passengersTab', 'citiesTab'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+      const active = "bg-white text-slate-900 shadow-sm", inactive = "text-slate-600 hover:text-slate-900";
+      document.getElementById('btnTabVans').className = `flex-1 py-2 rounded-xl text-xs font-bold transition ${tabId === 'vansTab' ? active : inactive}`;
+      document.getElementById('btnTabPassengers').className = `flex-1 py-2 rounded-xl text-xs font-bold transition ${tabId === 'passengersTab' ? active : inactive}`;
+      document.getElementById('btnTabCities').className = `flex-1 py-2 rounded-xl text-xs font-bold transition ${tabId === 'citiesTab' ? active : inactive}`;
+    }
+
+    function renderApp() {
+      updateMetrics();
+      renderVans();
+      renderPassengersMobileList();
+      renderCitiesList();
+      populateModalSelects();
+    }
+
+    function getFilteredPassengers() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      return state.passengers.filter(p => p.name.toLowerCase().includes(query) || p.city.toLowerCase().includes(query) || (p.notes && p.notes.toLowerCase().includes(query)) || (p.phone && p.phone.includes(query)));
+    }
+
+    function updateMetrics() {
+      document.getElementById('statTotalPassangens').innerText = state.passengers.length;
+      document.getElementById('statTotalVans').innerText = state.vans.length;
+      document.getElementById('statPixPago').innerText = state.passengers.filter(p => p.payment === 'PAGO').length;
+      document.getElementById('statPixPendente').innerText = state.passengers.filter(p => p.payment === 'PARCIAL' || p.payment === 'PENDENTE').length;
+    }
+
+    function isPaymentOverdue(p) {
+      if (p.payment !== 'PARCIAL' || !p.promisedDate) return false;
+      const today = new Date().toISOString().split('T')[0];
+      return p.promisedDate <= today;
+    }
+
+    function generateWhatsappLink(p) {
+      if (!p.phone) return '#';
+      const cleanPhone = p.phone.replace(/\D/g, '');
+      if (!cleanPhone) return '#';
+
+      let msg = "";
+      if (p.payment === 'PARCIAL') {
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez a reserva pelo formato (SINAL). Pode me enviar o comprovante por aqui para confirmação?\n\nCaso já tenha enviado o comprovante, por favor informe a data limite para pagamento do valor restante.`;
+      } else if (p.payment === 'PAGO') {
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Estou confirmando sua locação na van para a excursão! Caso ainda não tenha me mandado o comprovante, por favor envie por aqui.`;
+      } else {
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga na excursão. Segue em aberto para envio do comprovante.`;
+      }
+
+      return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function renderVans() {
+      const container = document.getElementById('vansContainer');
+      container.innerHTML = '';
+      const filteredPassengers = getFilteredPassengers();
+
+      state.vans.forEach(van => {
+        const passengersInVan = filteredPassengers.filter(p => p.vanId === van.id);
+        const totalInVan = state.passengers.filter(p => p.vanId === van.id).length;
+        const isFull = totalInVan >= van.capacity;
+        const fillPercentage = Math.min(100, Math.round((totalInVan / van.capacity) * 100));
+
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col";
+        card.innerHTML = `
+          <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <h3 class="font-extrabold text-sm">${van.name}</h3>
+                ${van.allowCrossCity ? `<span class="bg-emerald-500/20 text-emerald-300 text-[9px] uppercase font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">Multi-Cidade</span>` : ''}
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot text-emerald-400 mr-1"></i> Base: ${van.baseCity}</p>
+            </div>
+            <button onclick="handleDeleteVan('${van.id}')" class="text-slate-500 hover:text-rose-400 text-xs p-1"><i class="fa-solid fa-trash"></i></button>
+          </div>
+
+          <div class="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
+            <div class="flex justify-between items-center text-[11px] font-bold mb-1">
+              <span class="text-slate-500">Ocupação</span>
+              <span class="${isFull ? 'text-rose-600' : 'text-emerald-700'}">${totalInVan} / ${van.capacity} Assentos</span>
+            </div>
+            <div class="w-full bg-slate-200/70 h-2 rounded-full overflow-hidden">
+              <div class="h-full ${isFull ? 'bg-rose-500' : 'bg-emerald-500'} transition-all duration-300" style="width: ${fillPercentage}%"></div>
+            </div>
+          </div>
+
+          <div class="p-3 divide-y divide-slate-100 max-h-72 overflow-y-auto custom-scrollbar">
+            ${passengersInVan.length === 0 ? `<p class="text-xs text-slate-400 italic text-center py-4">Nenhum passageiro nesta van.</p>` : passengersInVan.map(p => {
+              const overdue = isPaymentOverdue(p);
+              const waLink = generateWhatsappLink(p);
+              return `
+              <div class="py-2 flex items-center justify-between">
+                <div>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-800'}">${p.name}</span>
+                    ${getPaymentBadge(p.payment)}
+                    ${p.phone ? `<a href="${waLink}" target="_blank" title="Mandar Mensagem no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                  </div>
+                  <div class="flex items-center space-x-1 mt-0.5">
+                    <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded-md">${p.city}</span>
+                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-amber-50 text-amber-800 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <button onclick="openMovePassengerModal('${p.id}')" title="Mover de Van" class="p-1 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+                  <button onclick="openEditPassengerModal('${p.id}')" title="Editar Passageiro" class="p-1 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
+                  <button onclick="handleUnassignVan('${p.id}')" title="Retirar da Van" class="p-1 text-slate-400 hover:text-amber-600 text-xs"><i class="fa-solid fa-user-minus"></i></button>
+                </div>
+              </div>
+            `;}).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      const unassigned = filteredPassengers.filter(p => !p.vanId);
+      if (unassigned.length > 0 || state.vans.length === 0) {
+        const waitlistCard = document.createElement('div');
+        waitlistCard.className = "bg-amber-50/60 rounded-3xl border border-amber-200/80 shadow-sm overflow-hidden flex flex-col";
+        waitlistCard.innerHTML = `
+          <div class="p-4 bg-amber-600 text-white flex items-center justify-between">
+            <h3 class="font-bold text-sm flex items-center"><i class="fa-solid fa-clock mr-2"></i> Sem Van / Espera</h3>
+            <span class="bg-amber-800 text-amber-100 text-xs font-bold px-2 py-0.5 rounded-full">${unassigned.length}</span>
+          </div>
+          <div class="p-3 divide-y divide-amber-100 max-h-60 overflow-y-auto custom-scrollbar">
+            ${unassigned.map(p => {
+              const overdue = isPaymentOverdue(p);
+              const waLink = generateWhatsappLink(p);
+              return `
+              <div class="py-2 flex items-center justify-between">
+                <div>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-800'}">${p.name}</span>
+                    ${getPaymentBadge(p.payment)}
+                    ${p.phone ? `<a href="${waLink}" target="_blank" title="Mandar Mensagem no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                  </div>
+                  <div class="flex items-center space-x-1 mt-0.5">
+                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">${p.city}</span>
+                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-amber-200 text-amber-900 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <button onclick="openMovePassengerModal('${p.id}')" class="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-amber-700">Alocar</button>
+                  <button onclick="handleDeletePassenger('${p.id}')" title="Excluir Passageiro" class="p-1.5 text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>
+            `;}).join('')}
+          </div>
+        `;
+        container.appendChild(waitlistCard);
+      }
+    }
+
+    function renderPassengersMobileList() {
+      const container = document.getElementById('passengersMobileList');
+      container.innerHTML = '';
+      const filtered = getFilteredPassengers();
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p class="p-6 text-center text-slate-400 text-xs italic">Nenhum passageiro encontrado.</p>`;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const van = state.vans.find(v => v.id === p.vanId);
+        const overdue = isPaymentOverdue(p);
+        const waLink = generateWhatsappLink(p);
+
+        const div = document.createElement('div');
+        div.className = "p-3.5 flex items-center justify-between hover:bg-slate-50 transition";
+        div.innerHTML = `
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-900'}">${p.name}</span>
+              ${getPaymentBadge(p.payment)}
+              ${p.phone ? `<a href="${waLink}" target="_blank" title="Abrir WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+            </div>
+            <div class="flex items-center space-x-1.5 text-[10px]">
+              <span class="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${p.city}</span>
+              <span class="${van ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'} font-semibold px-2 py-0.5 rounded-md border">${van ? van.name : 'Sem Van'}</span>
+              ${p.promisedDate ? `<span class="${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-slate-100 text-slate-600'} font-bold px-1.5 py-0.5 rounded-md">Restante: ${formatDateBR(p.promisedDate)}</span>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center space-x-1">
+            <button onclick="openMovePassengerModal('${p.id}')" title="Mover Van" class="p-1.5 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+            <button onclick="openEditPassengerModal('${p.id}')" title="Editar" class="p-1.5 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="handleDeletePassenger('${p.id}')" title="Excluir" class="p-1.5 text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function openMovePassengerModal(passengerId) {
+      const p = state.passengers.find(x => x.id === passengerId);
+      if (!p) return;
+      document.getElementById('movePassengerId').value = p.id;
+      document.getElementById('movePassengerSubtext').innerText = `${p.name} (${p.city})`;
+      const targetSelect = document.getElementById('moveTargetVanSelect');
+      targetSelect.innerHTML = '<option value="">Remover de Van (Lista de Espera)</option>';
+      state.vans.forEach(v => {
+        const totalInVan = state.passengers.filter(item => item.vanId === v.id).length;
+        const isCurrent = p.vanId === v.id;
+        targetSelect.innerHTML += `<option value="${v.id}" ${isCurrent ? 'selected' : ''}>${v.name} (${v.baseCity}) - ${totalInVan}/${v.capacity}</option>`;
+      });
+      openModal('movePassengerModal');
+    }
+
+    async function handleConfirmMovePassenger(e) {
+      e.preventDefault();
+      const passengerId = document.getElementById('movePassengerId').value;
+      const targetVanId = document.getElementById('moveTargetVanSelect').value || null;
+      const p = state.passengers.find(x => x.id === passengerId);
+      if (p) {
+        p.vanId = targetVanId;
+        await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: targetVanId, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
+        closeModal('movePassengerModal');
+        renderApp();
+      }
+    }
+
+    function renderCitiesList() {
+      const container = document.getElementById('citiesList');
+      container.innerHTML = '';
+      state.cities.forEach(city => {
+        const passCount = state.passengers.filter(p => p.city === city).length;
+        const div = document.createElement('div');
+        div.className = "py-2.5 flex items-center justify-between";
+        div.innerHTML = `
+          <div>
+            <h4 class="font-bold text-slate-800 text-xs">${city}</h4>
+            <p class="text-[10px] text-slate-400">${passCount} passageiros</p>
+          </div>
+          <button onclick="handleDeleteCity('${city}')" class="text-slate-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function getPaymentBadge(status) {
+      if (status === 'PAGO') return `<span class="bg-emerald-100 text-emerald-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pago Total</span>`;
+      if (status === 'PARCIAL') return `<span class="bg-blue-100 text-blue-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Sinal</span>`;
+      return `<span class="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pendente</span>`;
+    }
+
+    function formatDateBR(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
+      return dateStr;
+    }
+
+    function populateModalSelects() {
+      ['vanBaseCitySelect', 'passCitySelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerHTML = '';
+          state.cities.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+        }
+      });
+      const passVanSelect = document.getElementById('passVanSelect');
+      if (passVanSelect) {
+        passVanSelect.innerHTML = '<option value="">Sem Van (Lista de Espera)</option>';
+        state.vans.forEach(v => {
+          const totalInVan = state.passengers.filter(p => p.vanId === v.id).length;
+          passVanSelect.innerHTML += `<option value="${v.id}">${v.name} (${v.baseCity}) - ${totalInVan}/${v.capacity}</option>`;
+        });
+      }
+    }
+
+    async function handleSaveVan(e) {
+      e.preventDefault();
+      const name = document.getElementById('vanNameInput').value;
+      const baseCity = document.getElementById('vanBaseCitySelect').value;
+      const capacity = parseInt(document.getElementById('vanCapacitySelect').value);
+      const allowCrossCity = document.getElementById('vanCrossCityCheck').checked;
+      const newVan = { id: 'v_' + Date.now(), name, baseCity, capacity, allowCrossCity };
+      state.vans.push(newVan);
+      await syncToSupabase('vans', { id: newVan.id, name, base_city: baseCity, capacity, allow_cross_city: allowCrossCity });
+      closeModal('addVanModal');
+      document.getElementById('vanNameInput').value = '';
+      renderApp();
+    }
+
+    async function handleDeleteVan(vanId) {
+      if (!confirm('Remover esta van? Os passageiros nela irão para a Lista de Espera.')) return;
+      for (let p of state.passengers) {
+        if (p.vanId === vanId) {
+          p.vanId = null;
+          await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
+        }
+      }
+      state.vans = state.vans.filter(v => v.id !== vanId);
+      await deleteFromSupabase('vans', vanId);
+      renderApp();
+    }
+
+    async function handleSavePassenger(e) {
+      e.preventDefault();
+      const id = document.getElementById('editPassengerId').value;
+      const name = document.getElementById('passNameInput').value.trim();
+      
+      if (!isValidFullName(name)) {
+        alert("Por favor, digite o nome e sobrenome completos.");
+        return;
+      }
+
+      const city = document.getElementById('passCitySelect').value;
+      const phone = document.getElementById('passPhoneInput').value.trim().replace(/\D/g, '');
+      const payment = document.getElementById('passPaymentSelect').value;
+      const vanId = document.getElementById('passVanSelect').value || null;
+      const promisedDate = document.getElementById('passPromisedDateInput').value;
+      const notes = document.getElementById('passNotesInput').value;
+
+      const passengerId = id || 'p_' + Date.now();
+      if (id) {
+        const p = state.passengers.find(x => x.id === id);
+        if (p) {
+          p.name = name;
+          p.city = city;
+          p.phone = phone;
+          p.payment = payment;
+          p.vanId = vanId;
+          p.promisedDate = promisedDate;
+          p.notes = notes;
+        }
+      } else {
+        state.passengers.push({ id: passengerId, name, city, phone, payment, vanId, promisedDate, notes });
+      }
+      await syncToSupabase('passengers', { id: passengerId, name, city, phone, payment, van_id: vanId, notes, promised_date: promisedDate });
+      closeModal('addPassengerModal');
+      resetPassengerForm();
+      renderApp();
+    }
+
+    function openEditPassengerModal(id) {
+      const p = state.passengers.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('editPassengerId').value = p.id;
+      document.getElementById('passNameInput').value = p.name;
+      document.getElementById('passCitySelect').value = p.city;
+      
+      const phoneInput = document.getElementById('passPhoneInput');
+      phoneInput.value = p.phone || '';
+      applyPhoneMask(phoneInput);
+
+      document.getElementById('passPaymentSelect').value = p.payment;
+      document.getElementById('passVanSelect').value = p.vanId || '';
+      document.getElementById('passPromisedDateInput').value = p.promisedDate || '';
+      document.getElementById('passNotesInput').value = p.notes || '';
+      document.getElementById('passengerModalTitle').innerText = 'Editar Passageiro';
+      togglePromisedDateField();
+      openModal('addPassengerModal');
+    }
+
+    function resetPassengerForm() {
+      document.getElementById('editPassengerId').value = '';
+      document.getElementById('passNameInput').value = '';
+      document.getElementById('passPhoneInput').value = '';
+      document.getElementById('passPromisedDateInput').value = '';
+      document.getElementById('passNotesInput').value = '';
+      document.getElementById('passengerModalTitle').innerText = 'Adicionar Passageiro';
+      togglePromisedDateField();
+    }
+
+    async function handleUnassignVan(passengerId) {
+      const p = state.passengers.find(x => x.id === passengerId);
+      if (p) {
+        if (!confirm(`Deseja mesmo retirar ${p.name} desta van?`)) return;
+        p.vanId = null;
+        await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
+        renderApp();
+      }
+    }
+
+    async function handleDeletePassenger(id) {
+      const p = state.passengers.find(x => x.id === id);
+      const passName = p ? p.name : 'este passageiro';
+      if (!confirm(`Excluir permanentemente ${passName}?`)) return;
+      state.passengers = state.passengers.filter(p => p.id !== id);
+      await deleteFromSupabase('passengers', id);
+      renderApp();
+    }
+
+    async function handleAddCity(e) {
+      e.preventDefault();
+      const input = document.getElementById('newCityInput');
+      const cityName = input.value.trim();
+      if (cityName && !state.cities.includes(cityName)) {
+        state.cities.push(cityName);
+        await syncToSupabase('cities', { id: 'c_' + Date.now(), name: cityName });
+        input.value = '';
+        renderApp();
+      }
+    }
+
+    async function handleDeleteCity(cityName) {
+      if (!confirm(`Remover a cidade "${cityName}"?`)) return;
+      state.cities = state.cities.filter(c => c !== cityName);
+      saveLocal();
+      renderApp();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); if(id==='addPassengerModal') resetPassengerForm(); }
+  </script>
+</body>
+</html>
