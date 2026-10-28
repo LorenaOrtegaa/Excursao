@@ -4,20 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>VanGestão Excursões</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Supabase Client JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
     .safe-top { padding-top: env(safe-area-inset-top, 1rem); }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 1rem); }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -45,7 +38,7 @@
           <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Senha de Acesso</label>
           <input type="password" id="adminPasswordInput" placeholder="Sua senha..." required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
-        <p id="loginErrorMsg" class="text-xs text-rose-400 font-semibold hidden text-center">Usuário ou senha incorretos. Tente novamente.</p>
+        <p id="loginErrorMsg" class="text-xs text-rose-400 font-semibold hidden text-center">Usuário ou senha incorretos.</p>
         <button type="submit" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition">Entrar no Painel</button>
       </form>
     </div>
@@ -69,16 +62,14 @@
           <i class="fa-solid fa-share-nodes"></i>
           <span>Link Cliente</span>
         </button>
-        <button onclick="logoutAdmin()" title="Sair / Desconectar Dispositivo" class="px-2.5 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700">
+        <button onclick="logoutAdmin()" title="Sair" class="px-2.5 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-slate-700">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ========================================== -->
-  <!-- TELA DO CLIENTE (?modo=cliente) -->
-  <!-- ========================================== -->
+  <!-- TELA DO CLIENTE -->
   <div id="clientBookingView" class="hidden flex-grow bg-slate-100 p-4 flex items-center justify-center safe-bottom">
     <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden p-6 relative">
       
@@ -87,16 +78,16 @@
           <i class="fa-solid fa-van-shuttle"></i>
         </div>
         <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Reserva de Excursão</h2>
-        <p class="text-xs text-slate-500 mt-1">Preencha seus dados para garantir sua vaga e de acompanhantes.</p>
+        <p class="text-xs text-slate-500 mt-1">Preencha seus dados para garantir sua vaga.</p>
       </div>
 
       <!-- SUCESSO -->
-      <div id="clientBookingSuccess" class="hidden text-center py-2 animate-in fade-in duration-300">
+      <div id="clientBookingSuccess" class="hidden text-center py-2">
         <div class="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-lg shadow-emerald-500/30">
           <i class="fa-solid fa-check"></i>
         </div>
         <h3 class="text-lg font-bold text-slate-900">Pré-Reserva Garantida!</h3>
-        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix correspondente e envie o comprovante no WhatsApp da organizadora para confirmar.</p>
+        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix e envie o comprovante para confirmar sua vaga.</p>
         
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left mb-5">
           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Chave PIX para pagamento:</p>
@@ -111,37 +102,36 @@
           <span>Enviar Comprovante no WhatsApp</span>
         </a>
 
-        <button onclick="resetClientForm()" class="text-xs font-medium text-slate-400 hover:text-slate-600 transition underline mt-2 block mx-auto">Fazer outra reserva</button>
+        <button onclick="resetClientForm()" class="text-xs font-medium text-slate-400 hover:text-slate-600 transition underline mt-2 block mx-auto">Nova reserva</button>
       </div>
 
-      <!-- FORMULÁRIO CLIENTE -->
+      <!-- FORMULÁRIO -->
       <form id="clientBookingForm" onsubmit="handleClientSubmitBooking(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Seu Nome Completo</label>
-          <input type="text" id="clientNameInput" placeholder="Ex: João da Silva" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-          <p id="nameErrorMsg" class="text-[10px] text-rose-500 font-bold mt-1 hidden">Por favor, digite seu nome completo (Nome e Sobrenome).</p>
+          <input type="text" id="clientNameInput" placeholder="Ex: João da Silva" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <p id="nameErrorMsg" class="text-[10px] text-rose-500 font-bold mt-1 hidden">Por favor, digite seu nome e sobrenome.</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade de Embarque</label>
-            <select id="clientCitySelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></select>
+            <select id="clientCitySelect" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp</label>
-            <input type="tel" id="clientPhoneInput" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <input type="tel" id="clientPhoneInput" placeholder="(19) 99965-3211" oninput="applyPhoneMask(this)" maxlength="15" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Pagamento</label>
-          <select id="clientPaymentOption" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          <select id="clientPaymentOption" required class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             <option value="PARCIAL">Reserva de Vaga (Sinal)</option>
             <option value="PAGO">Pagamento Completo</option>
           </select>
         </div>
 
-        <!-- ACOMPANHANTES -->
         <div class="border-t border-slate-100 pt-4 mt-2">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-bold text-slate-700 uppercase">Acompanhantes</span>
@@ -161,12 +151,8 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- PAINEL PRINCIPAL ORGANIZADOR -->
-  <!-- ========================================== -->
+  <!-- PAINEL ORGANIZADOR -->
   <main id="organizerMainContainer" class="hidden max-w-xl mx-auto px-4 mt-4 flex-grow w-full safe-bottom">
-
-    <!-- RESUMO DE MÉTRICAS -->
     <div class="grid grid-cols-2 gap-3 mb-4">
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base"><i class="fa-solid fa-users"></i></div>
@@ -201,7 +187,6 @@
       </div>
     </div>
 
-    <!-- NAVEGAÇÃO ENTRE ABAS -->
     <div class="flex bg-slate-200/80 p-1 rounded-2xl mb-4 space-x-1">
       <button onclick="switchTab('vansTab')" id="btnTabVans" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-white text-slate-900 shadow-sm">
         <i class="fa-solid fa-van-shuttle mr-1"></i> Vans
@@ -214,7 +199,6 @@
       </button>
     </div>
 
-    <!-- BOTÕES AÇÕES RÁPIDAS -->
     <div class="flex space-x-2 mb-4">
       <button onclick="openModal('addPassengerModal')" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition">
         <i class="fa-solid fa-user-plus"></i>
@@ -226,25 +210,21 @@
       </button>
     </div>
 
-    <!-- CAMPO BUSCA -->
     <div class="relative mb-4">
       <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
       <input type="text" id="searchInput" placeholder="Buscar passageiro ou cidade..." oninput="renderApp()" class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
     </div>
 
-    <!-- ABA VANS -->
     <div id="vansTab" class="space-y-4">
       <div id="vansContainer" class="space-y-4"></div>
     </div>
 
-    <!-- ABA PASSAGEIROS -->
     <div id="passengersTab" class="hidden">
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div id="passengersMobileList" class="divide-y divide-slate-100"></div>
       </div>
     </div>
 
-    <!-- ABA CIDADES -->
     <div id="citiesTab" class="hidden">
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
         <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center"><i class="fa-solid fa-city text-emerald-600 mr-2"></i> Cidades Cadastradas</h2>
@@ -255,12 +235,11 @@
         <div id="citiesList" class="divide-y divide-slate-100"></div>
       </div>
     </div>
-
   </main>
 
-  <!-- MODAL MOVER -->
+  <!-- MODAIS DE AÇÃO DO ADMIN -->
   <div id="movePassengerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
-    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-sm w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
       <button onclick="closeModal('movePassengerModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-extrabold text-slate-900 mb-1">Mover de Van</h3>
       <p class="text-xs text-slate-500 mb-4" id="movePassengerSubtext"></p>
@@ -278,13 +257,12 @@
     </div>
   </div>
 
-  <!-- MODAL ADICIONAR VAN -->
   <div id="addVanModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
-    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
       <button onclick="closeModal('addVanModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-extrabold text-slate-900 mb-4">Nova Van</h3>
       <form onsubmit="handleSaveVan(event)" class="space-y-3">
-        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome da Van</label><input type="text" id="vanNameInput" placeholder="Ex: Van 01 - Alpha" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+        <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome da Van</label><input type="text" id="vanNameInput" placeholder="Ex: Van 01" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
         <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cidade Base</label><select id="vanBaseCitySelect" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"></select></div>
         <div><label class="block text-xs font-bold text-slate-700 uppercase mb-1">Capacidade</label><select id="vanCapacitySelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"><option value="15">15 Lugares</option><option value="16" selected>16 Lugares</option><option value="18">18 Lugares</option><option value="20">20 Lugares</option></select></div>
         <div class="flex items-center space-x-2 pt-1"><input type="checkbox" id="vanCrossCityCheck" class="w-4 h-4 text-emerald-600 rounded"><label for="vanCrossCityCheck" class="text-xs font-semibold text-slate-700">Permitir Embarque Multi-Cidade</label></div>
@@ -293,9 +271,8 @@
     </div>
   </div>
 
-  <!-- MODAL PASSAGEIRO (ADMIN) -->
   <div id="addPassengerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
-    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-in slide-in-from-bottom duration-200">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
       <button onclick="closeModal('addPassengerModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-extrabold text-slate-900 mb-4" id="passengerModalTitle">Adicionar Passageiro</h3>
       <form onsubmit="handleSavePassenger(event)" class="space-y-3">
@@ -331,11 +308,11 @@
           </div>
         </div>
         <div id="promisedDateContainer" class="hidden">
-          <label class="block text-xs font-bold text-amber-700 uppercase mb-1">Data Prometida para Quitar Restante</label>
+          <label class="block text-xs font-bold text-amber-700 uppercase mb-1">Data Prometida para Restante</label>
           <input type="date" id="passPromisedDateInput" class="w-full px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-bold text-slate-800">
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações / Quem Pagou</label>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Observações</label>
           <input type="text" id="passNotesInput" placeholder="Ex: Pago por João" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
         </div>
         <div class="flex justify-end space-x-2 pt-3">
@@ -347,14 +324,10 @@
   </div>
 
   <script>
-    // NÚMERO DE WHATSAPP DA LORENA
     const LORENA_WHATSAPP = "5519999653211"; 
-
-    // CREDENCIAIS DO SUPABASE
     const SB_URL = 'https://xudhsnaqifdswiuogjdh.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1ZGhzbmFxaWZkc3dpdW9namRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTQ4NDMsImV4cCI6MjEwODY5MDg0M30.4GKnAtKG9A2VyTFHGPl1Dc7APEb6LXmtmPhHaj6eiFs';
 
-    // AUTENTICAÇÃO DO ORGANIZADOR/ADMIN
     const ADMIN_USER = "ExcLorena"; 
     const ADMIN_PASS = "loexcurcoes2004"; 
 
@@ -373,7 +346,7 @@
         activateClientMode();
       } else if (isRecognizedAdmin) {
         activateAdminMode();
-        setInterval(loadDataSilent, 5000);
+        setInterval(loadDataSilent, 4000);
       } else {
         showAdminLogin();
       }
@@ -471,7 +444,7 @@
           renderApp();
         }
       } catch (e) {
-        console.error("Erro na sincronização silenciosa:", e);
+        console.error("Sincronização silenciosa:", e);
       }
     }
 
@@ -483,11 +456,18 @@
 
     async function syncToSupabase(table, payload) {
       saveLocal();
-      if (!supabaseClient) return;
+      if (!supabaseClient) return true;
       try { 
         const { error } = await supabaseClient.from(table).upsert(payload);
-        if (error) console.error("Erro Supabase ao salvar:", error);
-      } catch (e) { console.error("Exceção ao sincronizar:", e); }
+        if (error) {
+          console.error("Erro no Supabase:", error);
+          return false;
+        }
+        return true;
+      } catch (e) { 
+        console.error("Exceção:", e); 
+        return false;
+      }
     }
 
     async function deleteFromSupabase(table, id) {
@@ -510,8 +490,6 @@
       
       if (user === ADMIN_USER && pass === ADMIN_PASS) {
         localStorage.setItem('vg_admin_authenticated', 'true');
-        document.getElementById('adminUsernameInput').value = '';
-        document.getElementById('adminPasswordInput').value = '';
         document.getElementById('loginErrorMsg').classList.add('hidden');
         activateAdminMode();
       } else {
@@ -606,7 +584,7 @@
 
       const btnSubmit = document.getElementById('btnSubmitBooking');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Salvando pré-reserva...</span>`;
+      btnSubmit.innerHTML = `<span>Salvando vaga...</span>`;
 
       try {
         const mainCity = document.getElementById('clientCitySelect').value;
@@ -671,15 +649,15 @@
 
         const totalVagas = 1 + compRows.length;
         const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
-        const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} e fiz a reserva de ${totalVagas} vaga(s) no formato [${tipoPagamentoTexto}]. Segue o meu comprovante por aqui!`);
+        const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de cadastrar ${totalVagas} vaga(s) no sistema no formato [${tipoPagamentoTexto}]. Segue o meu comprovante Pix!`);
         
         document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/${LORENA_WHATSAPP}?text=${msg}`;
 
         document.getElementById('clientBookingForm').classList.add('hidden');
         document.getElementById('clientBookingSuccess').classList.remove('hidden');
       } catch (err) {
-        console.error("Erro ao enviar reserva:", err);
-        alert("Ocorreu um erro ao salvar sua reserva. Tente novamente.");
+        console.error("Erro no formulário:", err);
+        alert("Ocorreu um erro ao salvar a reserva. Tente novamente.");
       } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<span>Confirmar & Reservar Vagas</span><i class="fa-solid fa-arrow-right text-xs"></i>`;
@@ -696,7 +674,7 @@
     function copyClientLink() {
       const baseUrl = window.location.href.split('?')[0];
       const clientUrl = `${baseUrl}?modo=cliente`;
-      navigator.clipboard.writeText(clientUrl).then(() => alert('Link do Cliente copiado com sucesso! Pode enviar pelo WhatsApp.'));
+      navigator.clipboard.writeText(clientUrl).then(() => alert('Link do Cliente copiado!'));
     }
 
     function copyPixKey() {
@@ -745,11 +723,11 @@
 
       let msg = "";
       if (p.payment === 'PARCIAL') {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez a reserva pelo formato (SINAL). Pode me enviar o comprovante por aqui para confirmação?\n\nCaso já tenha enviado o comprovante, por favor informe a data limite para pagamento do valor restante.`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez a reserva pelo formato (SINAL). Pode me enviar o comprovante por aqui para confirmação?`;
       } else if (p.payment === 'PAGO') {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Estou confirmando sua locação na van para a excursão! Caso ainda não tenha me mandado o comprovante, por favor envie por aqui.`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Estou confirmando sua locação na van!`;
       } else {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga na excursão. Segue em aberto para envio do comprovante.`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga na excursão.`;
       }
 
       return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
@@ -798,18 +776,18 @@
               <div class="py-2 flex items-center justify-between">
                 <div>
                   <div class="flex items-center space-x-1.5">
-                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-800'}">${p.name}</span>
+                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 font-extrabold' : 'text-slate-800'}">${p.name}</span>
                     ${getPaymentBadge(p.payment)}
-                    ${p.phone ? `<a href="${waLink}" target="_blank" title="Mandar Mensagem no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                    ${p.phone ? `<a href="${waLink}" target="_blank" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
                   </div>
                   <div class="flex items-center space-x-1 mt-0.5">
                     <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded-md">${p.city}</span>
-                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-amber-50 text-amber-800 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 font-black' : 'bg-amber-50 text-amber-800 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
                   <button onclick="openMovePassengerModal('${p.id}')" title="Mover de Van" class="p-1 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
-                  <button onclick="openEditPassengerModal('${p.id}')" title="Editar Passageiro" class="p-1 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
+                  <button onclick="openEditPassengerModal('${p.id}')" title="Editar" class="p-1 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
                   <button onclick="handleUnassignVan('${p.id}')" title="Retirar da Van" class="p-1 text-slate-400 hover:text-amber-600 text-xs"><i class="fa-solid fa-user-minus"></i></button>
                 </div>
               </div>
@@ -836,18 +814,18 @@
               <div class="py-2 flex items-center justify-between">
                 <div>
                   <div class="flex items-center space-x-1.5">
-                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-800'}">${p.name}</span>
+                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 font-extrabold' : 'text-slate-800'}">${p.name}</span>
                     ${getPaymentBadge(p.payment)}
-                    ${p.phone ? `<a href="${waLink}" target="_blank" title="Mandar Mensagem no WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                    ${p.phone ? `<a href="${waLink}" target="_blank" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
                   </div>
                   <div class="flex items-center space-x-1 mt-0.5">
                     <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">${p.city}</span>
-                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-amber-200 text-amber-900 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 font-black' : 'bg-amber-200 text-amber-900 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
                   <button onclick="openMovePassengerModal('${p.id}')" class="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-amber-700">Alocar</button>
-                  <button onclick="handleDeletePassenger('${p.id}')" title="Excluir Passageiro" class="p-1.5 text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                  <button onclick="handleDeletePassenger('${p.id}')" title="Excluir" class="p-1.5 text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </div>
             `;}).join('')}
@@ -863,7 +841,7 @@
       const filtered = getFilteredPassengers();
 
       if (filtered.length === 0) {
-        container.innerHTML = `<p class="p-6 text-center text-slate-400 text-xs italic">Nenhum passageiro encontrado.</p>`;
+        container.innerHTML = `<p class="p-6 text-center text-slate-400 text-xs italic">Nenhum passageiro cadastrado.</p>`;
         return;
       }
 
@@ -877,14 +855,13 @@
         div.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center space-x-2">
-              <span class="font-bold text-xs ${overdue ? 'text-rose-600 animate-pulse font-extrabold' : 'text-slate-900'}">${p.name}</span>
+              <span class="font-bold text-xs ${overdue ? 'text-rose-600 font-extrabold' : 'text-slate-900'}">${p.name}</span>
               ${getPaymentBadge(p.payment)}
-              ${p.phone ? `<a href="${waLink}" target="_blank" title="Abrir WhatsApp" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+              ${p.phone ? `<a href="${waLink}" target="_blank" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
             </div>
             <div class="flex items-center space-x-1.5 text-[10px]">
               <span class="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${p.city}</span>
               <span class="${van ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'} font-semibold px-2 py-0.5 rounded-md border">${van ? van.name : 'Sem Van'}</span>
-              ${p.promisedDate ? `<span class="${overdue ? 'bg-rose-100 text-rose-800 border border-rose-300 font-black' : 'bg-slate-100 text-slate-600'} font-bold px-1.5 py-0.5 rounded-md">Restante: ${formatDateBR(p.promisedDate)}</span>` : ''}
             </div>
           </div>
           <div class="flex items-center space-x-1">
@@ -1072,7 +1049,7 @@
     async function handleUnassignVan(passengerId) {
       const p = state.passengers.find(x => x.id === passengerId);
       if (p) {
-        if (!confirm(`Deseja mesmo retirar ${p.name} desta van?`)) return;
+        if (!confirm(`Retirar ${p.name} desta van?`)) return;
         p.vanId = null;
         await syncToSupabase('passengers', { id: p.id, name: p.name, city: p.city, payment: p.payment, van_id: null, notes: p.notes, phone: p.phone, promised_date: p.promisedDate });
         renderApp();
@@ -1081,8 +1058,7 @@
 
     async function handleDeletePassenger(id) {
       const p = state.passengers.find(x => x.id === id);
-      const passName = p ? p.name : 'este passageiro';
-      if (!confirm(`Excluir permanentemente ${passName}?`)) return;
+      if (!confirm(`Excluir permanentemente ${p ? p.name : 'este passageiro'}?`)) return;
       state.passengers = state.passengers.filter(p => p.id !== id);
       await deleteFromSupabase('passengers', id);
       renderApp();
