@@ -19,7 +19,7 @@
 </head>
 <body class="text-slate-800 min-h-full flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
 
-  <!-- TELA DE LOGIN DO ADMINISTRADOR -->
+  <!-- LOGIN DO ADMIN -->
   <div id="adminLoginView" class="hidden flex-grow bg-slate-900 p-4 flex items-center justify-center safe-bottom">
     <div class="max-w-sm w-full bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-2xl text-white">
       <div class="text-center mb-6">
@@ -69,7 +69,7 @@
     </div>
   </header>
 
-  <!-- TELA DO CLIENTE -->
+  <!-- TELA DO CLIENTE (?modo=cliente) -->
   <div id="clientBookingView" class="hidden flex-grow bg-slate-100 p-4 flex items-center justify-center safe-bottom">
     <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden p-6 relative">
       
@@ -81,7 +81,7 @@
         <p class="text-xs text-slate-500 mt-1">Preencha seus dados para garantir sua vaga.</p>
       </div>
 
-      <!-- SUCESSO -->
+      <!-- SUCESSO CLIENTE -->
       <div id="clientBookingSuccess" class="hidden text-center py-2">
         <div class="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-lg shadow-emerald-500/30">
           <i class="fa-solid fa-check"></i>
@@ -105,12 +105,12 @@
         <button onclick="resetClientForm()" class="text-xs font-medium text-slate-400 hover:text-slate-600 transition underline mt-2 block mx-auto">Nova reserva</button>
       </div>
 
-      <!-- FORMULÁRIO -->
+      <!-- FORMULÁRIO DO CLIENTE -->
       <form id="clientBookingForm" onsubmit="handleClientSubmitBooking(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Seu Nome Completo</label>
           <input type="text" id="clientNameInput" placeholder="Ex: João da Silva" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-          <p id="nameErrorMsg" class="text-[10px] text-rose-500 font-bold mt-1 hidden">Por favor, digite seu nome e sobrenome.</p>
+          <p id="nameErrorMsg" class="text-[10px] text-rose-500 font-bold mt-1 hidden">Por favor, digite seu nome e sobrenome completos.</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -142,6 +142,8 @@
           </div>
           <div id="companionsContainer" class="space-y-3"></div>
         </div>
+
+        <div id="clientErrorBox" class="hidden p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold"></div>
 
         <button type="submit" id="btnSubmitBooking" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-sm transition shadow-lg shadow-emerald-600/20 mt-4 flex items-center justify-center space-x-2 active:scale-98">
           <span>Confirmar & Reservar Vagas</span>
@@ -237,7 +239,7 @@
     </div>
   </main>
 
-  <!-- MODAIS DE AÇÃO DO ADMIN -->
+  <!-- MODAIS ADMIN -->
   <div id="movePassengerModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
     <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
       <button onclick="closeModal('movePassengerModal')" class="absolute right-4 top-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -346,7 +348,7 @@
         activateClientMode();
       } else if (isRecognizedAdmin) {
         activateAdminMode();
-        setInterval(loadDataSilent, 4000);
+        setInterval(loadDataSilent, 3000); // Atualiza o painel do organizador a cada 3 segundos
       } else {
         showAdminLogin();
       }
@@ -356,7 +358,7 @@
       if (window.supabase && SB_URL && SB_KEY) {
         try {
           supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
-        } catch (e) { console.error("Erro ao iniciar Supabase:", e); }
+        } catch (e) { console.error("Erro Supabase:", e); }
       }
     }
 
@@ -416,7 +418,7 @@
           }
           return;
         } catch (err) {
-          console.warn("Erro ao carregar do Supabase:", err);
+          console.warn("Erro ao carregar Supabase:", err);
         }
       }
 
@@ -444,7 +446,7 @@
           renderApp();
         }
       } catch (e) {
-        console.error("Sincronização silenciosa:", e);
+        console.error("Sincronização:", e);
       }
     }
 
@@ -456,17 +458,16 @@
 
     async function syncToSupabase(table, payload) {
       saveLocal();
-      if (!supabaseClient) return true;
+      if (!supabaseClient) return { success: false, error: "Sem conexão com Supabase" };
       try { 
         const { error } = await supabaseClient.from(table).upsert(payload);
         if (error) {
-          console.error("Erro no Supabase:", error);
-          return false;
+          console.error("Erro Supabase:", error);
+          return { success: false, error: error.message };
         }
-        return true;
+        return { success: true };
       } catch (e) { 
-        console.error("Exceção:", e); 
-        return false;
+        return { success: false, error: e.message };
       }
     }
 
@@ -562,7 +563,10 @@
       
       const mainNameInput = document.getElementById('clientNameInput');
       const nameErrorMsg = document.getElementById('nameErrorMsg');
+      const errorBox = document.getElementById('clientErrorBox');
       const mainName = mainNameInput.value.trim();
+
+      errorBox.classList.add('hidden');
 
       if (!isValidFullName(mainName)) {
         nameErrorMsg.classList.remove('hidden');
@@ -584,7 +588,7 @@
 
       const btnSubmit = document.getElementById('btnSubmitBooking');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Salvando vaga...</span>`;
+      btnSubmit.innerHTML = `<span>Enviando reserva...</span>`;
 
       try {
         const mainCity = document.getElementById('clientCitySelect').value;
@@ -596,23 +600,19 @@
           name: mainName, 
           city: mainCity, 
           payment: mainPayment, 
-          vanId: null, 
+          van_id: null, 
           phone: mainPhone, 
           notes: 'Comprador Principal', 
-          promisedDate: '' 
+          promised_date: null 
         };
         
-        state.passengers.push(mainPass);
-        await syncToSupabase('passengers', { 
-          id: mainPass.id, 
-          name: mainPass.name, 
-          city: mainPass.city, 
-          payment: mainPass.payment, 
-          van_id: null, 
-          phone: mainPass.phone, 
-          notes: mainPass.notes, 
-          promised_date: null 
-        });
+        const resMain = await syncToSupabase('passengers', mainPass);
+        
+        if (!resMain.success) {
+          errorBox.innerText = `Erro de Conexão com o Banco: ${resMain.error}. Rode o código SQL indicado no Supabase.`;
+          errorBox.classList.remove('hidden');
+          return;
+        }
 
         for (let i = 0; i < compRows.length; i++) {
           const row = compRows[i];
@@ -623,25 +623,14 @@
 
           if (compName) {
             const compId = 'p_' + Date.now() + '_' + i + Math.random().toString(36).substr(2, 4);
-            const compPass = { 
+            await syncToSupabase('passengers', { 
               id: compId, 
               name: compName, 
               city: compCity, 
               payment: compPayment, 
-              vanId: null, 
+              van_id: null, 
               phone: compPhone, 
               notes: `Acompanhante de ${mainName}`, 
-              promisedDate: '' 
-            };
-            state.passengers.push(compPass);
-            await syncToSupabase('passengers', { 
-              id: compPass.id, 
-              name: compPass.name, 
-              city: compPass.city, 
-              payment: compPass.payment, 
-              van_id: null, 
-              phone: compPass.phone, 
-              notes: compPass.notes, 
               promised_date: null 
             });
           }
@@ -649,15 +638,16 @@
 
         const totalVagas = 1 + compRows.length;
         const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
-        const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de cadastrar ${totalVagas} vaga(s) no sistema no formato [${tipoPagamentoTexto}]. Segue o meu comprovante Pix!`);
+        const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de fazer a pré-reserva de ${totalVagas} vaga(s) pelo link no formato [${tipoPagamentoTexto}]. Segue o meu comprovante por aqui!`);
         
         document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/${LORENA_WHATSAPP}?text=${msg}`;
 
         document.getElementById('clientBookingForm').classList.add('hidden');
         document.getElementById('clientBookingSuccess').classList.remove('hidden');
       } catch (err) {
-        console.error("Erro no formulário:", err);
-        alert("Ocorreu um erro ao salvar a reserva. Tente novamente.");
+        console.error("Erro no envio:", err);
+        errorBox.innerText = "Houve uma falha ao enviar. Tente novamente.";
+        errorBox.classList.remove('hidden');
       } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<span>Confirmar & Reservar Vagas</span><i class="fa-solid fa-arrow-right text-xs"></i>`;
@@ -669,6 +659,7 @@
       document.getElementById('companionsContainer').innerHTML = '';
       document.getElementById('clientBookingForm').classList.remove('hidden');
       document.getElementById('clientBookingSuccess').classList.add('hidden');
+      document.getElementById('clientErrorBox').classList.add('hidden');
     }
 
     function copyClientLink() {
