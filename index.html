@@ -346,7 +346,7 @@
   </div>
 
   <script>
-    // NÚMERO DE WHATSAPP DA LORENA (Com DDI e DDD)
+    // NÚMERO DE WHATSAPP DA LORENA
     const LORENA_WHATSAPP = "5519999653211"; 
 
     // CREDENCIAIS DO SUPABASE
@@ -372,6 +372,8 @@
         activateClientMode();
       } else if (isRecognizedAdmin) {
         activateAdminMode();
+        // Atualiza a cada 5 segundos automaticamente caso esteja aberto no painel
+        setInterval(loadDataSilent, 5000);
       } else {
         showAdminLogin();
       }
@@ -385,7 +387,6 @@
       }
     }
 
-    // MÁSCARA PARA TELEFONE (19) 99965-3211
     function applyPhoneMask(input) {
       let value = input.value.replace(/\D/g, '');
       if (value.length > 11) value = value.slice(0, 11);
@@ -442,18 +443,42 @@
             }));
           }
           saveLocal();
+          if (localStorage.getItem('vg_admin_authenticated') === 'true') {
+            renderApp();
+          }
           return;
         } catch (err) {
-          console.warn("Erro ao carregar do Supabase, usando dados locais:", err);
+          console.warn("Erro ao carregar do Supabase:", err);
         }
       }
 
       state.cities = JSON.parse(localStorage.getItem('vg_cities')) || state.cities;
-      state.vans = JSON.parse(localStorage.getItem('vg_vans')) || [
-        { id: 'v1', name: 'Van 01 - Principal', baseCity: 'Leme', capacity: 16, allowCrossCity: true },
-        { id: 'v2', name: 'Van 02 - Express', baseCity: 'Araras', capacity: 15, allowCrossCity: false }
-      ];
+      state.vans = JSON.parse(localStorage.getItem('vg_vans')) || [];
       state.passengers = JSON.parse(localStorage.getItem('vg_passengers')) || [];
+    }
+
+    // Carregamento silencioso para atualizar o painel em segundo plano sem piscar a tela
+    async function loadDataSilent() {
+      if (!supabaseClient || localStorage.getItem('vg_admin_authenticated') !== 'true') return;
+      try {
+        const { data: pData } = await supabaseClient.from('passengers').select('*');
+        if (pData) {
+          state.passengers = pData.map(p => ({
+            id: p.id,
+            name: p.name,
+            city: p.city,
+            payment: p.payment,
+            vanId: p.van_id,
+            notes: p.notes,
+            phone: p.phone || '',
+            promisedDate: p.promised_date || ''
+          }));
+          saveLocal();
+          renderApp();
+        }
+      } catch (e) {
+        console.error("Erro na sincronização silenciosa:", e);
+      }
     }
 
     function saveLocal() {
@@ -467,7 +492,10 @@
       if (!supabaseClient) return;
       try { 
         const { error } = await supabaseClient.from(table).upsert(payload);
-        if (error) console.error("Erro ao sincronizar com Supabase:", error);
+        if (error) {
+          console.error("Erro Supabase ao salvar:", error);
+          alert("Aviso: Houve um pequeno erro ao sincronizar com a nuvem. Verifique sua conexão.");
+        }
       } catch (e) { console.error("Exceção ao sincronizar:", e); }
     }
 
@@ -477,7 +505,6 @@
       try { await supabaseClient.from(table).delete().eq('id', id); } catch (e) { console.error(e); }
     }
 
-    // AUTENTICAÇÃO E MODO ADMIN / CLIENTE
     function showAdminLogin() {
       document.getElementById('clientBookingView').classList.add('hidden');
       document.getElementById('appHeader').classList.add('hidden');
@@ -560,7 +587,7 @@
       e.preventDefault();
       const btnSubmit = document.getElementById('btnSubmitBooking');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Salvando reserva...</span>`;
+      btnSubmit.innerHTML = `<span>Salvando pré-reserva na nuvem...</span>`;
 
       try {
         const mainName = document.getElementById('clientNameInput').value.trim();
@@ -659,7 +686,6 @@
       navigator.clipboard.writeText(document.getElementById('pixKeyText').innerText).then(() => alert('Chave Pix copiada!'));
     }
 
-    // ORGANIZADOR LOGIC
     function switchTab(tabId) {
       ['vansTab', 'passengersTab', 'citiesTab'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById(tabId).classList.remove('hidden');
@@ -1058,8 +1084,9 @@
       renderApp();
     }
 
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function openModal(id) { document.getElementById(id).classList.add('hidden') === false ? '' : document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); if(id==='addPassengerModal') resetPassengerForm(); }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
   </script>
 </body>
 </html>
