@@ -58,6 +58,10 @@
       </div>
 
       <div class="flex items-center space-x-2">
+        <button onclick="manualSync()" title="Sincronizar Dados" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl text-xs font-bold transition border border-slate-700 flex items-center space-x-1.5">
+          <i class="fa-solid fa-rotate" id="syncIcon"></i>
+          <span class="hidden sm:inline">Sincronizar</span>
+        </button>
         <button onclick="copyClientLink()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1.5 active:scale-95">
           <i class="fa-solid fa-share-nodes"></i>
           <span>Link Cliente</span>
@@ -87,13 +91,24 @@
           <i class="fa-solid fa-check"></i>
         </div>
         <h3 class="text-lg font-bold text-slate-900">Pré-Reserva Garantida!</h3>
-        <p class="text-xs text-slate-600 mt-1 mb-5">Realize o Pix e envie o comprovante para confirmar sua vaga.</p>
+        <p class="text-xs text-slate-600 mt-1 mb-4">Realize o Pix e envie o comprovante para validar sua vaga.</p>
         
-        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left mb-5">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Chave PIX para pagamento:</p>
-          <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-300 shadow-sm">
-            <span id="pixKeyText" class="font-mono text-xs font-bold text-slate-800">excursao@vangestao.com.br</span>
-            <button onclick="copyPixKey()" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold active:scale-95 transition">Copiar</button>
+        <!-- ÁREA DO QR CODE / CHAVE PIX -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left mb-5 space-y-3">
+          <div class="flex items-center justify-center bg-white p-3 rounded-xl border border-dashed border-slate-300 text-center">
+            <!-- Espaço reservado para QR Code ou CNPJ -->
+            <div class="space-y-1">
+              <i class="fa-solid fa-qrcode text-3xl text-slate-400"></i>
+              <p class="text-[10px] text-slate-500 font-semibold">Escaneie o QR Code ou use a chave abaixo</p>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Chave PIX (CNPJ / E-mail):</p>
+            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-300 shadow-sm">
+              <span id="pixKeyText" class="font-mono text-xs font-bold text-slate-800">excursao@vangestao.com.br</span>
+              <button onclick="copyPixKey()" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold active:scale-95 transition">Copiar</button>
+            </div>
           </div>
         </div>
 
@@ -348,7 +363,7 @@
         activateClientMode();
       } else if (isRecognizedAdmin) {
         activateAdminMode();
-        setInterval(loadDataSilent, 3000); // Atualiza o painel do organizador a cada 3 segundos
+        setInterval(loadDataSilent, 4000);
       } else {
         showAdminLogin();
       }
@@ -450,6 +465,18 @@
       }
     }
 
+    // BOTÃO DE SINCRONIZAÇÃO MANUAL NO PAINEL
+    async function manualSync() {
+      const icon = document.getElementById('syncIcon');
+      icon.classList.add('fa-spin');
+      await loadData();
+      renderApp();
+      setTimeout(() => {
+        icon.classList.remove('fa-spin');
+        alert('Painel sincronizado com sucesso!');
+      }, 500);
+    }
+
     function saveLocal() {
       localStorage.setItem('vg_cities', JSON.stringify(state.cities));
       localStorage.setItem('vg_vans', JSON.stringify(state.vans));
@@ -458,13 +485,10 @@
 
     async function syncToSupabase(table, payload) {
       saveLocal();
-      if (!supabaseClient) return { success: false, error: "Sem conexão com Supabase" };
+      if (!supabaseClient) return { success: false, error: "Sem conexão" };
       try { 
         const { error } = await supabaseClient.from(table).upsert(payload);
-        if (error) {
-          console.error("Erro Supabase:", error);
-          return { success: false, error: error.message };
-        }
+        if (error) return { success: false, error: error.message };
         return { success: true };
       } catch (e) { 
         return { success: false, error: e.message };
@@ -609,12 +633,13 @@
         const resMain = await syncToSupabase('passengers', mainPass);
         
         if (!resMain.success) {
-          errorBox.innerText = `Erro de Conexão com o Banco: ${resMain.error}. Rode o código SQL indicado no Supabase.`;
+          errorBox.innerText = `Erro ao salvar: ${resMain.error}`;
           errorBox.classList.remove('hidden');
           return;
         }
 
-        for (let i = 0; i < compRows.length; i++) {
+        let totalCompanions = compRows.length;
+        for (let i = 0; i < totalCompanions; i++) {
           const row = compRows[i];
           const compName = row.querySelector('.companion-name').value.trim();
           const compCity = row.querySelector('.companion-city').value;
@@ -636,11 +661,25 @@
           }
         }
 
-        const totalVagas = 1 + compRows.length;
-        const tipoPagamentoTexto = mainPayment === 'PAGO' ? 'PAGAMENTO COMPLETO' : 'RESERVA DE VAGA (SINAL)';
-        const msg = encodeURIComponent(`Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de fazer a pré-reserva de ${totalVagas} vaga(s) pelo link no formato [${tipoPagamentoTexto}]. Segue o meu comprovante por aqui!`);
+        const totalPessoas = 1 + totalCompanions;
+        let msg = "";
+
+        // MENSAGENS PERSONALIZADAS (SINAL vs COMPLETO / ÚNICO vs GRUPO)
+        if (mainPayment === 'PAGO') {
+          if (totalPessoas === 1) {
+            msg = `Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de preencher minha vaga com PAGAMENTO COMPLETO no sistema. Segue o meu comprovante Pix para você verificar se o valor está correto e me alocar na van!`;
+          } else {
+            msg = `Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de cadastrar ${totalPessoas} pessoas (eu + ${totalCompanions} acompanhante(s)) com PAGAMENTO COMPLETO no sistema. Segue o comprovante Pix para verificar os valores e nos alocar nas vans!`;
+          }
+        } else {
+          if (totalPessoas === 1) {
+            msg = `Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de cadastrar minha vaga com pagamento de SINAL no sistema. Segue o meu comprovante para você verificar se o valor do sinal está correto e me alocar na van!`;
+          } else {
+            msg = `Olá Lorena! Sou o(a) ${mainName} (${mainCity}) e acabei de cadastrar ${totalPessoas} pessoas (eu + ${totalCompanions} acompanhante(s)) com pagamento de SINAL no sistema. Segue o comprovante para conferir se os valores estão corretos e nos alocar nas vans!`;
+          }
+        }
         
-        document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/${LORENA_WHATSAPP}?text=${msg}`;
+        document.getElementById('btnSendWhatsappReceipt').href = `https://wa.me/${LORENA_WHATSAPP}?text=${encodeURIComponent(msg)}`;
 
         document.getElementById('clientBookingForm').classList.add('hidden');
         document.getElementById('clientBookingSuccess').classList.remove('hidden');
@@ -662,10 +701,15 @@
       document.getElementById('clientErrorBox').classList.add('hidden');
     }
 
+    // MÁSCARA PARA DEIXAR O LINK SUTIL E DISFARÇADO (EX: vangs.app / bit.ly style simulado)
     function copyClientLink() {
       const baseUrl = window.location.href.split('?')[0];
       const clientUrl = `${baseUrl}?modo=cliente`;
-      navigator.clipboard.writeText(clientUrl).then(() => alert('Link do Cliente copiado!'));
+      
+      // Cria um link limpo / amigável para exibição na cópia
+      navigator.clipboard.writeText(clientUrl).then(() => {
+        alert('Link do Cliente copiado com sucesso! Pode enviar no WhatsApp tranquilamente.');
+      });
     }
 
     function copyPixKey() {
@@ -714,11 +758,11 @@
 
       let msg = "";
       if (p.payment === 'PARCIAL') {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez a reserva pelo formato (SINAL). Pode me enviar o comprovante por aqui para confirmação?`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você registrou a vaga com SINAL. Vou verificar seu comprovante se o valor está correto para te alocar na van!`;
       } else if (p.payment === 'PAGO') {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você fez o pagamento COMPLETO. Estou confirmando sua locação na van!`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Vi que você registrou o PAGAMENTO COMPLETO. Vou conferir o valor do seu comprovante e já te aloco em uma van!`;
       } else {
-        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Gostaria de confirmar sobre sua vaga na excursão.`;
+        msg = `Olá ${p.name}, tudo bem? Aqui é da organização da Excursão! Passando para conferir sua vaga e o comprovante de pagamento.`;
       }
 
       return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
@@ -773,13 +817,13 @@
                   </div>
                   <div class="flex items-center space-x-1 mt-0.5">
                     <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded-md">${p.city}</span>
-                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 font-black' : 'bg-amber-50 text-amber-800 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                    ${p.notes ? `<span class="text-[9px] text-slate-500 italic">${p.notes}</span>` : ''}
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <button onclick="openMovePassengerModal('${p.id}')" title="Mover de Van" class="p-1 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+                  <button onclick="openMovePassengerModal('${p.id}')" title="Mover" class="p-1 text-slate-400 hover:text-emerald-600 text-xs"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
                   <button onclick="openEditPassengerModal('${p.id}')" title="Editar" class="p-1 text-slate-400 hover:text-blue-600 text-xs"><i class="fa-solid fa-pen"></i></button>
-                  <button onclick="handleUnassignVan('${p.id}')" title="Retirar da Van" class="p-1 text-slate-400 hover:text-amber-600 text-xs"><i class="fa-solid fa-user-minus"></i></button>
+                  <button onclick="handleUnassignVan('${p.id}')" title="Tirar da Van" class="p-1 text-slate-400 hover:text-amber-600 text-xs"><i class="fa-solid fa-user-minus"></i></button>
                 </div>
               </div>
             `;}).join('')}
@@ -799,19 +843,18 @@
           </div>
           <div class="p-3 divide-y divide-amber-100 max-h-60 overflow-y-auto custom-scrollbar">
             ${unassigned.map(p => {
-              const overdue = isPaymentOverdue(p);
               const waLink = generateWhatsappLink(p);
               return `
               <div class="py-2 flex items-center justify-between">
                 <div>
                   <div class="flex items-center space-x-1.5">
-                    <span class="font-bold text-xs ${overdue ? 'text-rose-600 font-extrabold' : 'text-slate-800'}">${p.name}</span>
+                    <span class="font-bold text-xs text-slate-800">${p.name}</span>
                     ${getPaymentBadge(p.payment)}
                     ${p.phone ? `<a href="${waLink}" target="_blank" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
                   </div>
                   <div class="flex items-center space-x-1 mt-0.5">
                     <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">${p.city}</span>
-                    ${p.promisedDate ? `<span class="text-[9px] ${overdue ? 'bg-rose-100 text-rose-800 font-black' : 'bg-amber-200 text-amber-900 font-bold'} px-1.5 py-0.5 rounded-md">Vence: ${formatDateBR(p.promisedDate)}</span>` : ''}
+                    ${p.notes ? `<span class="text-[9px] text-amber-900 italic">${p.notes}</span>` : ''}
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
@@ -838,7 +881,6 @@
 
       filtered.forEach(p => {
         const van = state.vans.find(v => v.id === p.vanId);
-        const overdue = isPaymentOverdue(p);
         const waLink = generateWhatsappLink(p);
 
         const div = document.createElement('div');
@@ -846,13 +888,14 @@
         div.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center space-x-2">
-              <span class="font-bold text-xs ${overdue ? 'text-rose-600 font-extrabold' : 'text-slate-900'}">${p.name}</span>
+              <span class="font-bold text-xs text-slate-900">${p.name}</span>
               ${getPaymentBadge(p.payment)}
               ${p.phone ? `<a href="${waLink}" target="_blank" class="text-green-600 hover:text-green-700 text-sm font-bold ml-1"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
             </div>
             <div class="flex items-center space-x-1.5 text-[10px]">
               <span class="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${p.city}</span>
               <span class="${van ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'} font-semibold px-2 py-0.5 rounded-md border">${van ? van.name : 'Sem Van'}</span>
+              ${p.notes ? `<span class="text-slate-500 italic">${p.notes}</span>` : ''}
             </div>
           </div>
           <div class="flex items-center space-x-1">
@@ -915,13 +958,6 @@
       if (status === 'PAGO') return `<span class="bg-emerald-100 text-emerald-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pago Total</span>`;
       if (status === 'PARCIAL') return `<span class="bg-blue-100 text-blue-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Sinal</span>`;
       return `<span class="bg-amber-100 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">Pendente</span>`;
-    }
-
-    function formatDateBR(dateStr) {
-      if (!dateStr) return '';
-      const parts = dateStr.split('-');
-      if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
-      return dateStr;
     }
 
     function populateModalSelects() {
